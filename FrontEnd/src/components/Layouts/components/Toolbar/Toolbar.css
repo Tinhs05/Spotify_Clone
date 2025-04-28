@@ -1,0 +1,54 @@
+.toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    width: var(--with-toolbar);
+    border: 1px solid #ccc;
+    background-color: #343A40;
+    color: rgba(255, 255, 255, .8);
+}
+
+.header {
+    width: 100%;
+}
+
+.header .user-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px;
+}
+
+.header .user-panel img {
+    width: 15%;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.header .user-panel .role,
+.header .user-panel .user {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #4b545c;
+    padding: 10px 0;
+}
+
+.subnav {
+    margin: 10px 0;
+    /* padding: 10px 0; */
+
+}
+
+.subnav > ul > li {
+    display: block;
+    padding: 20px;
+    margin-left: 5px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+}
+
+.subnav > ul > li:hover {
+    background-color: #494E53;
+}

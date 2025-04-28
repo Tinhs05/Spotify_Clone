@@ -1,0 +1,166 @@
+/* GLOBAL STYLE */
+.ant-slider-rail {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    height: 4px !important;
+}
+  
+.ant-slider-track {
+    background-color: #fff !important;
+    height: 4px !important;
+}
+
+.ant-slider-handle {
+    display: none;
+}
+  
+  
+.ant-slider-handle:focus {
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.1) !important;
+}
+  
+
+
+/* LOCAL STYLE */
+.MediaControls {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    background-color: #000;
+    height: 80px;
+    width: 100%;
+    display: flex;
+    padding: 15px 10px 5px 10px;
+    justify-content: space-between;
+}
+
+.MediaControls_track {
+    display: flex;
+    width: 350px;
+}
+
+.MediaControls_track .track-image {
+    width: 50px;
+    height: 50px;
+}
+
+.MediaControls_track .track-information {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 2px;
+}
+
+.MediaControls_track .track-information .name:hover {
+    text-decoration-line: underline;
+}
+
+.MediaControls_track .add-into-playlist {
+    color: #b3b3b3;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.MediaControls_track .add-into-playlist:hover {
+    color: white;
+}
+
+.MediaControls_controls {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.MediaControls_controls .controls-btn {
+    display: flex;
+    gap: 25px;
+}
+
+.MediaControls_controls .controls-btn .prev {
+    color: #b3b3b3;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.MediaControls_controls .controls-btn .prev:hover {
+    color: white;
+}
+
+.MediaControls_controls .controls-btn .play {
+    font-size: 36px;
+    border-radius: 50%; 
+    color: #fff;
+    cursor: pointer;
+}
+
+.MediaControls_controls .controls-btn .play:hover {
+    color: #b3b3b3;
+}
+
+.MediaControls_controls .controls-btn .next {
+    color: #b3b3b3;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.MediaControls_controls .controls-btn .next:hover {
+    color: white;
+}
+
+
+
+.MediaControls_controls .duration {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.MediaControls_controls .duration .time-display {
+    color: #fff;
+    font-size: 14px;
+    min-width: 40px;
+}
+
+.MediaControls_controls .duration .custom-slider {
+    flex: 1;
+    max-width: 300px;
+}
+
+
+  
+.MediaControls_controls .duration .custom-slider:hover .ant-slider-track {
+    background-color: #fff !important;
+}
+  
+.MediaControls_controls .duration .custom-slider:hover .ant-slider-handle {
+    border-color: #fff !important;
+    display: block;
+}
+
+
+.MediaControls_additional-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    padding-right: 50px;
+    gap: 10px;
+}
+
+
+.MediaControls_additional-controls .custom-volume {
+    flex: 1;
+    max-width: 100px;
+}
+
+
+.MediaControls_additional-controls .custom-volume:hover .ant-slider-track {
+    background-color: #fff !important;
+}
+  
+.MediaControls_additional-controls .custom-volume:hover .ant-slider-handle {
+    border-color: #fff !important;
+    display: block;
+}

@@ -1,0 +1,13 @@
+.TrangChu {
+    display: flex;
+    flex-direction: column;
+    width: 945px;
+    max-height: 445px;
+    border-radius: 5px;
+    margin-top: 60px;
+    margin-left: 320px;
+    overflow-y: auto;
+}
+
+
+

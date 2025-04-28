@@ -1,0 +1,42 @@
+.HomePage {
+    width: 100%;
+    min-height: 600px;
+    background: #ccc;
+    background: linear-gradient(to bottom, #361515, #121212);
+}
+
+.wrap_genres {
+    padding: 50px 20px 20px 35px;
+}
+
+.wrap_genres .genre {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 50px;
+}
+
+.wrap_genres .genre .genre-title {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 10px;
+}
+
+.wrap_genres .genre .genre-title a:hover {
+    text-decoration: underline;
+}
+
+
+.wrap_videos {
+    padding: 50px 20px 20px 35px;
+}
+
+.wrap_videos .video-title {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 10px;
+}
+
+.wrap_videos .video-title a:hover {
+    text-decoration: underline;
+}
+

@@ -1,0 +1,40 @@
+.footer {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 80px 50px;
+    background-color: #181821;
+    color: #888;
+    border-top: 1px solid #ccc;
+}
+
+.heading {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #fff;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 58px;
+}
+
+.social-list {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 32px;
+    margin-right: 70px;
+}
+
+

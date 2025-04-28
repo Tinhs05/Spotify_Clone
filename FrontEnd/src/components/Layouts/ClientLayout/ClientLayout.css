@@ -1,0 +1,15 @@
+:root {
+    --with-toolbar: 240px;
+}
+
+.ClientLayout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+} 
+
+
+.ClientLayout_WrapContent {
+    flex: 1;
+    background-color: #000;
+}
