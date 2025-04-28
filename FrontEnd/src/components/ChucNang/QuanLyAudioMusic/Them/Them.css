@@ -1,0 +1,23 @@
+.Them {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #00000030;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.Them_content {
+    width: 800px;
+    height: 900px;
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    padding-bottom: 0;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ccc;
+}

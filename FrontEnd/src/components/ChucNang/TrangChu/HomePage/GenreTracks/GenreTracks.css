@@ -1,0 +1,50 @@
+.genre-track-list {
+    display: flex;
+    margin-top: 10px;
+    overflow: hidden;
+    max-width: 860px;
+}
+
+.genre-track-list .genre-track {
+    position: relative;
+    width: 176px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.genre-track-list .genre-track:hover {
+    background-color: #484848;
+}
+
+.genre-track-list .genre-track:hover .play-btn {
+    opacity: 1;
+    transform: translate(-25px, -80px) scale(1);
+}
+
+.genre-track-list .genre-track .play-btn {
+    position: absolute;
+    font-size: 48px;
+    color: #1ccb5b;
+    right: 0;
+    bottom: 0;
+    transform: translate(-25px, -50px) scale(1);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1;
+}
+
+
+.genre-track-list .genre-track .image {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.genre-track-list .genre-track .title {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 5px;
+}

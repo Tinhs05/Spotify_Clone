@@ -1,0 +1,15 @@
+:root {
+    --with-toolbar: 240px;
+}
+
+.AdminLayout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: var(--with-toolbar);
+} 
+
+.AdminLayout_Main {
+    flex: 1;
+    background-color: #f4f6f9;
+}

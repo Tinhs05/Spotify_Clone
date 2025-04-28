@@ -1,0 +1,59 @@
+.DangKy {
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.DangKy_main {
+    width: 50%;
+    background-color: #fff;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+.DangKy_main > h2 {
+    text-align: center;
+}
+
+.DangKy_form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.DangKy_form > input {
+    padding-top: 8px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.DangKy_form > input:focus {
+    border-color: #000;
+}
+
+.DangKy_form > button {
+    margin-top: 30px;
+    padding: 10px;
+    background-color: var(--primary-btn-color);
+    color: #fff;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+}
+
+.DangKy_option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-right: 5px;
+    justify-content: flex-end;
+}
+
+
+.DangKy_option-dangKy > span {
+    color: #0a86ce;
+    cursor: pointer;
+}
