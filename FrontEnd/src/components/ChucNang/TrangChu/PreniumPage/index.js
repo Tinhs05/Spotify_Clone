@@ -4,56 +4,35 @@ import { useParams } from 'react-router-dom';
 import { CheckOutlined } from '@ant-design/icons';
 import { Card, Button, Typography, Space, Divider, Modal, Radio } from "antd";
 import "./PreniumPage.css";
+import { updatePremiumStatusAPI } from "../../../../services/UserAPI";
 
 
 function PreniumPage(props) {
     const { Title, Text } = Typography
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState("1");
+    const { user, setUser } = useTrack();
     const { idUser } = useParams();
 
     // Mock Data
-    const users = [
-        {
-            id: 1,
-            username: 'Trần Văn A',
-            image_file_path: null,
-            email: 'tranvana@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-        {
-            id: 2,
-            username: 'Trần Văn B',
-            image_file_path: null,
-            email: 'tranvanb@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-        {
-            id: 3,
-            username: 'Trần Văn C',
-            image_file_path: null,
-            email: 'tranvanc@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-    ]
 
 
-    const getUserById = () => {
-        return users.find(item => item.id === parseInt(idUser));
-    }
+
 
     const showModal = () => {
         setIsModalOpen(true)
     }
 
-    const handleOk = () => {
-        setIsModalOpen(false)
+    const handleOk = async () => {
+        const dataUpdatePrenium = await updatePremiumStatusAPI(user.id, 1);
+        if(dataUpdatePrenium.success)
+        {
+            setUser(prevUser => ({
+                ...prevUser,
+                is_premium: 1
+            }));
+            setIsModalOpen(false);
+        }
     }
 
     const handleCancel = () => {
@@ -122,6 +101,7 @@ function PreniumPage(props) {
                             type="primary"
                             size="large"
                             block
+                            disabled={user?.is_premium === 1}
                             onClick={showModal}
                             style={{
                                 height: 56,

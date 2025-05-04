@@ -1,74 +1,33 @@
 import { useTrack } from "../../../../Layouts/contexts/TrackProvider";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import "./VideoList.css";
 import { PlayCircleFilled } from '@ant-design/icons';
 import { Tooltip, Popconfirm } from "antd";
 import ModalVideo from "./ModalVideo";
+import { getVideoListAPI } from "../../../../../services/TrackAPI";
 
 
 function VideoList() {
-    const { user, isModalOpen, setIsModalOpen } = useTrack();
+    const { user, isModalOpen, setIsModalOpen, setIsPlayling } = useTrack();
     const [chucNang, setChucNang] = useState("");
+    const [videoList, setVideoList] = useState([]);
     
 
     // Mock database
-    const videoList = [
-        {
-            id: 1,
-            title: 'Dấu mưa',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'dau_mua.mp3', 
-            video_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp4',
-            isPremium: 1
-        },
-        {
-            id: 2,
-            title: 'Nước mắt em lau bằng tình yêu mới',
-            duration: 285,
-            artist: 'Dalab',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp3', 
-            video_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp4',
-            isPremium: 1
-        },
-        {
-            id: 3,
-            title: 'Yêu thương ngày đó',
-            duration: 285,
-            artist: 'Soobin Hoàng Sơn',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'yeu_thuong_ngay_do.mp3', 
-            video_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp4',
-            isPremium: 0
-        },
-        {
-            id: 4,
-            title: 'Trót yêu',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'trot_yeu.mp3', 
-            video_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp4',
-            isPremium: 0
-        },
-        {
-            id: 5,
-            title: 'Mortals',
-            duration: 285,
-            artist: 'TheFatRat',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'mortal.mp3', 
-            video_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp4',
-            isPremium: 0
-        }
-    ]
+    useEffect(() => {
+        ( async () => { 
+            const dataVideoList =  await getVideoListAPI();
+            if(dataVideoList.videoList)
+            {
+                setVideoList(dataVideoList.videoList);
+                    
+            }
+            else
+            {
+                console.log(dataVideoList.error);
+            }
+        })();
+    }, []);
 
     return (
         <div className="video-list">
@@ -80,19 +39,20 @@ function VideoList() {
                             <Tooltip className="play-btn" placement="top" title={`Phát ${item.title}`}>
                                 <PlayCircleFilled 
                                     onClick={() => {
-                                        if (item.isPremium === 1 && user.isPremium === 0) 
+                                        if (item.is_premium === 1 && user.is_premium === 0) 
                                         {
                                             setIsModalOpen(true)
                                         } 
                                         else 
                                         {
+                                            
                                             setChucNang(
                                                 <ModalVideo
                                                     modalVisible={true}
                                                     setChucNang={setChucNang}
                                                     idVideo={item.id}
                                                 />
-                                            )
+                                            );
                                         }
                                         
                                     }}
@@ -100,7 +60,7 @@ function VideoList() {
                             </Tooltip>
                             <div className="image">
                                 <img 
-                                    src={`${process.env.PUBLIC_URL}/${item.img_file_path ? item.img_file_path : 'default_music.png'}`}  
+                                    src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`} 
                                     style={{
                                         width: '100%',
                                         height: '100%',
@@ -126,7 +86,7 @@ function VideoList() {
                                     &nbsp;
                                 </span>
                                 {
-                                    item.isPremium === 1 ? 
+                                    item.is_premium === 1 ? 
                                     <span
                                         style={{
                                             color: 'white',

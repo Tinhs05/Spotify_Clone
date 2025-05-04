@@ -10,149 +10,35 @@ import { PlayCircleFilled, PlusCircleOutlined, CloseCircleOutlined,
 import { Input, Tooltip, Popconfirm, Table, message } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCompactDisc, faMusic } from "@fortawesome/free-solid-svg-icons";
+import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
+import { getFavoriteTracksAPI, deleteFavoriteTrackAPI } from "../../../../services/FavoriteTrackAPI";
 
 function FavoritePage() {
     const navigate = useNavigate();
-    const { trackInfo, setTrackInfo, isPlaying, setIsPlaying} = useTrack();
+    const { trackInfo, setTrackInfo, user, isPlaying, setIsPlaying} = useTrack();
     const [favoriteSongs, setFavoriteSongs ] = useState([]);
-    const { idUser } = useParams();
+    const { idFavorite } = useParams();
 
     // Mock Data
-    const users = [
-        {
-            id: 1,
-            username: 'Trần Văn A',
-            image_file_path: null,
-            email: 'tranvana@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-        {
-            id: 2,
-            username: 'Trần Văn B',
-            image_file_path: null,
-            email: 'tranvanb@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-        {
-            id: 3,
-            username: 'Trần Văn C',
-            image_file_path: null,
-            email: 'tranvanc@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-    ]
-
-
-    const tracks = [
-        {
-            id: 1,
-            title: 'Dấu mưa',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'dau_mua.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 2,
-            title: 'Nước mắt em lau bằng tình yêu mới',
-            duration: 285,
-            artist: 'Dalab',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 3,
-            title: 'Yêu thương ngày đó',
-            duration: 285,
-            artist: 'Soobin Hoàng Sơn',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'yeu_thuong_ngay_do.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 4,
-            title: 'Trót yêu',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'trot_yeu.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 5,
-            title: 'Mortals',
-            duration: 285,
-            artist: 'TheFatRat',
-            genre_id: 2,
-            img_file_path: null,
-            audio_file_path: 'mortal.mp3', 
-            video_file_path: null
-        }
-    ]
-
-    const listSongs = [
-        {
-            id: 1,
-            title: 'Dấu mưa',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'dau_mua.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 3,
-            title: 'Yêu thương ngày đó',
-            duration: 285,
-            artist: 'Soobin Hoàng Sơn',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'yeu_thuong_ngay_do.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 4,
-            title: 'Trót yêu',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'trot_yeu.mp3', 
-            video_file_path: null
-        },
-    ];
-
     useEffect(() => {
-        setFavoriteSongs(listSongs);
+        ( async () => {
+            const dataFavoriteTracks = await getFavoriteTracksAPI(idFavorite);
+            if(dataFavoriteTracks.favorite_tracks)
+            {
+                setFavoriteSongs(dataFavoriteTracks.favorite_tracks);
+            }
+        })();
     }, []);
 
-    function removeTrackFromFavorite(index)
-    {
-        const newListSongs = [...favoriteSongs];
-        newListSongs.splice(index, 1);
-        setFavoriteSongs(newListSongs);
-        message.success('Đã xóa bài hát từ favorite!');
-        
-    }
-
-
-    function getUserNameById(idUser)
-    {
-        const user = users.find(item => item.id === parseInt(idUser));
-        return user ? user.username : null;
+    const removeTrackFromFavorite = async (idTrack) => {
+        const dataDeleteFavoriteTrack = await deleteFavoriteTrackAPI(idFavorite, idTrack);
+        if(dataDeleteFavoriteTrack.success)
+        {
+            const dataFavoriteTracks = await getFavoriteTracksAPI(idFavorite);
+            setFavoriteSongs(dataFavoriteTracks.favorite_tracks || []);
+            message.success('Đã xóa bài hát ra khỏi favorite thành công!');
+        }
+            
     }
 
     const formatTime = (seconds) => {
@@ -167,7 +53,7 @@ function FavoritePage() {
             <div className="favorite_header">
                 <div className="favorite-img">
                     <img 
-                        src={`${process.env.PUBLIC_URL}/default_music.png`} 
+                        src={`${process.env.PUBLIC_URL}/assets/images/default_music.png`} 
                         style={{
                             width: '100%',
                             height: '100%',
@@ -180,7 +66,7 @@ function FavoritePage() {
                     <span className="type">Playlist</span>
                     <span className="name">Bài hát đã thích</span>
                     <span className="sub-info">
-                        <a className="user">{getUserNameById(idUser) || ""}</a> 
+                        <a className="user">{user.username}</a> 
                         &nbsp;
                         &#8226; 
                         &nbsp;
@@ -196,7 +82,7 @@ function FavoritePage() {
                             onClick={() => {
                                 setTrackInfo({
                                     type: "favorite",
-                                    id: idUser,
+                                    id: idFavorite,
                                     song_id: favoriteSongs[0].id
                                 });
                                 setIsPlaying(true)
@@ -231,7 +117,7 @@ function FavoritePage() {
                                         <tr>
                                             <td class="number-col">
                                                 {
-                                                    (isPlaying === true && (trackInfo.song_id === item.id && trackInfo.type === "favorite")) ? 
+                                                    (isPlaying === true && (trackInfo.song_id === item.id && trackInfo.id === idFavorite && trackInfo.type === "favorite")) ? 
                                                     <FontAwesomeIcon 
                                                         icon={faMusic} 
                                                         beat
@@ -249,7 +135,7 @@ function FavoritePage() {
                                                             onClick={() => {
                                                                 setTrackInfo({
                                                                     type: "favorite",
-                                                                    id: idUser,
+                                                                    id: idFavorite,
                                                                     song_id: item.id
                                                                 });
                                                                 setIsPlaying(true);
@@ -264,7 +150,7 @@ function FavoritePage() {
                                                 <div className="track">
                                                     <div className="image">
                                                         <img 
-                                                            src={`${process.env.PUBLIC_URL}/${item.img_file_path ? item.img_file_path : 'default_music.png'}`} 
+                                                            src={`${process.env.PUBLIC_URL}/assets/images/${item.img_file_path ? item.img_file_path : 'default_music.png'}`} 
                                                             style={{
                                                                 width: '100%',
                                                                 height: '100%',
@@ -292,7 +178,7 @@ function FavoritePage() {
                                             <td class="remove-track-col">
                                                 <Tooltip className="remove-from-playlist" placement="top" title={"Xóa khỏi favorite"}>
                                                     <CloseCircleOutlined 
-                                                        onClick={() => removeTrackFromFavorite(index)}
+                                                        onClick={() => removeTrackFromFavorite(item.id)}
                                                     />
                                                 </Tooltip>
                                             </td>

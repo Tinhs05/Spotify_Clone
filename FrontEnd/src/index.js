@@ -10,8 +10,10 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <GlobalStyles>
+      <TrackProvider>
         <App />
         <Toast />
+      </TrackProvider>
       
     </GlobalStyles>
   </React.StrictMode>

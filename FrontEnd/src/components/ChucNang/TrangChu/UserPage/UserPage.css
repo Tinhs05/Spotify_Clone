@@ -1,0 +1,39 @@
+.UserPage {
+    width: 100%;
+    min-height: 600px;
+}
+
+.user_header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(to bottom, #545454, #2d2d2d); 
+    height: 280px;
+    padding: 20px;
+}
+
+.user_header .user-img {
+    width: 210px;
+    height: 210px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.2); 
+}
+
+.user_header .user-info {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    gap: 15px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.user_header .user-info .type {
+    font-weight: 400;
+}
+
+.user_header .user-info .name {
+    font-size: 56px;
+    font-weight: bold;
+}
+

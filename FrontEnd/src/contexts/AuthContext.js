@@ -7,49 +7,39 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('userId');
+        const userData = JSON.parse(localStorage.getItem('user'));
         
-        if (token && userId) {
-            getUserByIdAPI(token, userId)
-                .then(userData => {
-                    setUser(userData);
-                    setIsAuthenticated(true);
-                })
-                .catch(() => {
-                    // Nếu token không hợp lệ, xóa thông tin đăng nhập
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userId');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        } else {
-            setLoading(false);
+        if (userData) {
+            setUser(userData);
+            setIsAuthenticated(true);
+            setIsAdmin(userData.role === 1);
         }
+        setLoading(false);
     }, []);
 
-    const login = (userData, token) => {
-        localStorage.setItem('token', token);
-        localStorage.setItem('userId', userData.id);
+    const login = (userData) => {
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setIsAuthenticated(true);
+        setIsAdmin(userData.role === 1);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
+        localStorage.removeItem('user');
         setUser(null);
         setIsAuthenticated(false);
+        setIsAdmin(false);
     };
 
     return (
         <AuthContext.Provider value={{ 
             user, 
             loading, 
-            isAuthenticated, 
+            isAuthenticated,
+            isAdmin,
             login, 
             logout 
         }}>

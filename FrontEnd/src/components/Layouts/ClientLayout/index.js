@@ -10,26 +10,25 @@ function ClientLayout({ children }) {
     const [currentTrack, setCurrentTrack] = useState(null);
 
     return (
-        <TrackProvider>
-            <div className="ClientLayout">
-                <div className="ClientLayout_Header">
-                    <HeaderClient />
+        
+        <div className="ClientLayout">
+            <div className="ClientLayout_Header">
+                <HeaderClient />
+            </div>
+            <div className="ClientLayout_WrapContent">
+                <div className="ClientLayout_Playlists">
+                    <Playlists />
                 </div>
-                <div className="ClientLayout_WrapContent">
-                    <div className="ClientLayout_Playlists">
-                        <Playlists />
-                    </div>
-                    <div className="ClientLayout_Main">
-                        {children}
-                    </div>
-                </div>
-                <div className="ClientLayout_Media-Controls">
-                    <MediaControls 
-                        track={currentTrack}
-                    />
+                <div className="ClientLayout_Main">
+                    {children}
                 </div>
             </div>
-        </TrackProvider>
+            <div className="ClientLayout_Media-Controls">
+                <MediaControls 
+                    track={currentTrack}
+                />
+            </div>
+        </div>
     )
 }
 

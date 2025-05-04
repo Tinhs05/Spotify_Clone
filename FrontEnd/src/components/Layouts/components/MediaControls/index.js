@@ -3,9 +3,14 @@ import { useState, useRef, useEffect } from 'react';
 import "./MediaControls.css";
 import { PlusCircleOutlined, StepBackwardOutlined, 
         StepForwardOutlined, PlayCircleFilled,
-        SoundOutlined, PauseCircleFilled
+        SoundOutlined, PauseCircleFilled,
+        CheckCircleFilled
 } from '@ant-design/icons';
-import { Tooltip, Input, Slider } from "antd";
+import { Tooltip, Input, Slider, message } from "antd";
+import { getTrackByIdAPI } from "../../../../services/TrackAPI";
+import { getPlaylistTracksAPI } from "../../../../services/PlaylistTrackAPI";
+import { getFavoriteTracksAPI, createFavoriteTrackAPI } from "../../../../services/FavoriteTrackAPI";
+import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
 
 
 
@@ -14,99 +19,38 @@ function MediaControls() {
     const [currentTime, setCurrentTime] = useState(0);
     const [currentVolume, setCurrentVolume] = useState(100);
     const [currentTrack, setCurrentTrack] = useState(null);
-    const { trackInfo, setTrackInfo, isPlaying, setIsPlaying } = useTrack();
+    const [listSongs, setListSongs ] = useState([]);
+    const [isInFavorite, setIsInFavorite] = useState(false);
+    const { trackInfo, setTrackInfo, user, isPlaying, setIsPlaying } = useTrack();
 
     const audioRef = useRef(null);
 
     // Mock Data
-    const tracks = [
-        {
-            id: 1,
-            title: 'Dấu mưa',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'dau_mua.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 2,
-            title: 'Nước mắt em lau bằng tình yêu mới',
-            duration: 285,
-            artist: 'Dalab',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'nuoc_mat_em_lau_bang_tinh_yeu_moi.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 3,
-            title: 'Yêu thương ngày đó',
-            duration: 285,
-            artist: 'Soobin Hoàng Sơn',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'yeu_thuong_ngay_do.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 4,
-            title: 'Trót yêu',
-            duration: 285,
-            artist: 'Trung Quân',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'trot_yeu.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 5,
-            title: 'Mortals',
-            duration: 285,
-            artist: 'TheFatRat',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'mortals.mp3', 
-            video_file_path: null
-        },
-        {
-            id: 6,
-            title: 'Đường lên phía trước',
-            duration: 285,
-            artist: 'Tiến Minh',
-            genre_id: 1,
-            img_file_path: null,
-            audio_file_path: 'duong_len_phia_truoc.mp3', 
-            video_file_path: null
-        }
-    ]
-
-    function getTrackById(idTrack)
-    {
-        return tracks.find(item => item.id === idTrack) || null;
-    }
-
-
     useEffect(() => {
-        if(trackInfo)
-        {
-            if(trackInfo.type === "track")
+        ( async () => {
+            if(trackInfo)
             {
-                let track = getTrackById(trackInfo.id);
-                setCurrentTrack(track);
+                if(trackInfo.type === "track")
+                {
+                    let dataTrack = await getTrackByIdAPI(trackInfo.id);
+                    setCurrentTrack(dataTrack.track);
+                }
+                else if(trackInfo.type === "playlist")
+                {
+                    let dataTrack = await getTrackByIdAPI(trackInfo.song_id);
+                    let dataListSong = await getPlaylistTracksAPI(trackInfo.id);
+                    setCurrentTrack(dataTrack.track);
+                    setListSongs(dataListSong.playlist_tracks);
+                }
+                else if(trackInfo.type === "favorite")
+                {
+                    let dataTrack = await getTrackByIdAPI(trackInfo.song_id);
+                    let dataListSong = await getFavoriteTracksAPI(trackInfo.id);
+                    setCurrentTrack(dataTrack.track);
+                    setListSongs(dataListSong.favorite_tracks);
+                }
             }
-            else if(trackInfo.type === "playlist")
-            {
-                let track = getTrackById(trackInfo.song_id);
-                setCurrentTrack(track);
-            }
-            else if(trackInfo.type === "favorite")
-            {
-                let track = getTrackById(trackInfo.song_id);
-                setCurrentTrack(track);
-            }
-        }
+        })();
     }, [trackInfo]);
 
 
@@ -124,10 +68,17 @@ function MediaControls() {
     useEffect(() => {
         if (audioRef.current && currentTrack) {
             audioRef.current.load();
-            if (isPlaying) {
-                audioRef.current.play();
-            }
         }
+    }, [currentTrack]);
+
+    useEffect(() => {
+        const checkFavorite = async () => {
+            if (currentTrack) {
+                const result = await checkTrackInFavorite(currentTrack.id);
+                setIsInFavorite(result);
+            }
+        };
+        checkFavorite();
     }, [currentTrack]);
 
     
@@ -137,6 +88,143 @@ function MediaControls() {
             audioRef.current.volume = currentVolume / 100;
         }
     }, [currentVolume]);
+
+
+    const handleSwitchPrev = () => {
+        if(trackInfo.type === "track")
+        {
+            return;
+        }
+        if(listSongs)
+        {
+            const index = listSongs.findIndex(song => song.id === currentTrack.id);
+            if((index - 1) <  0)
+            {
+                setCurrentTrack(listSongs[index]);
+                if(trackInfo.type === "playlist")
+                {
+                    setTrackInfo({
+                        type: "playlist",
+                        id: trackInfo.id,
+                        song_id: listSongs[index].id
+                    });
+                    
+                    setIsPlaying(true);
+                }
+                else if(trackInfo.type === "favorite")
+                {
+                    setTrackInfo({
+                        type: "favorite",
+                        id: trackInfo.id,
+                        song_id: listSongs[index].id
+                    });
+                    
+                    setIsPlaying(true);
+                }
+            }
+            else 
+            {
+                setCurrentTrack(listSongs[index - 1]);
+                if(trackInfo.type === "playlist")
+                {
+                    setTrackInfo({
+                        type: "playlist",
+                        id: trackInfo.id,
+                        song_id: listSongs[index - 1].id
+                    });
+                    
+                    setIsPlaying(true);
+                }
+                else if(trackInfo.type === "favorite")
+                {
+                    setTrackInfo({
+                        type: "favorite",
+                        id: trackInfo.id,
+                        song_id: listSongs[index - 1].id
+                    });
+                    
+                    setIsPlaying(true);
+                }
+            }
+        }
+    }
+
+    const handleSwitchNext = () => {
+        if(trackInfo.type === "track")
+        {
+            return;
+        }
+        if(listSongs)
+        {
+            const index = listSongs.findIndex(song => song.id === currentTrack.id);
+            if((index + 1) >=  listSongs.length)
+            {
+                setCurrentTrack(listSongs[0]);
+                if(trackInfo.type === "playlist")
+                {
+                    setTrackInfo({
+                        type: "playlist",
+                        id: trackInfo.id,
+                        song_id: listSongs[0].id
+                    });
+                    setIsPlaying(true);
+                }
+                else if(trackInfo.type === "favorite")
+                {
+                    
+                    setTrackInfo({
+                        type: "favorite",
+                        id: trackInfo.id,
+                        song_id: listSongs[0].id
+                    });
+                    setIsPlaying(true);
+                }
+            }
+            else 
+            {
+                setCurrentTrack(listSongs[index + 1]);
+                if(trackInfo.type === "playlist")
+                {
+                    setTrackInfo({
+                        type: "playlist",
+                        id: trackInfo.id,
+                        song_id: listSongs[index + 1].id
+                    });
+                    setIsPlaying(true);
+                }
+                else if(trackInfo.type === "favorite")
+                {
+                    setTrackInfo({
+                        type: "favorite",
+                        id: trackInfo.id,
+                        song_id: listSongs[index + 1].id
+                    });
+                    setIsPlaying(true);
+                }
+            }
+        }
+    }
+
+    const addIntoFavorite = async (idTrack) => {
+        const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+        const dataCreateFavoriteTrack = await createFavoriteTrackAPI(dataFavorite.favorite.id, idTrack);
+        if(dataCreateFavoriteTrack.success)
+        {
+            setIsInFavorite(true);
+            message.success('Đã thêm bài hát vào favorite thành công!');
+        }
+    }
+
+    const checkTrackInFavorite = async (idTrack) => {
+        const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+        const favoriteSongs = await getFavoriteTracksAPI(dataFavorite.favorite.id);
+        if(favoriteSongs.favorite_tracks)
+        {
+            return favoriteSongs.favorite_tracks.some(song => song.id === idTrack);
+        }
+        return false;
+        
+    };
 
 
     const formatTime = (seconds) => {
@@ -185,7 +273,7 @@ function MediaControls() {
                     <div className="MediaControls_track">
                         <div className="track-image">
                             <img 
-                                src={`${process.env.PUBLIC_URL}/${currentTrack.img_file_path ? currentTrack.img_file_path : 'default_music.png'}`}
+                                src={`${process.env.PUBLIC_URL}/assets/images/${currentTrack.img_file_path ? currentTrack.img_file_path : 'default_music.png'}`}
                                 style={{
                                     width: '100%',
                                     height: '100%',
@@ -208,10 +296,28 @@ function MediaControls() {
                                 {currentTrack.artist}
                             </span>
                         </div>
-                        <Tooltip className="add-into-playlist" placement="top" title={"Lưu vào thư viện"}>
-                            <PlusCircleOutlined 
-                            />
-                        </Tooltip>
+                        {
+                            (!isInFavorite ?
+                                <Tooltip className="add-into-playlist" placement="top" title={"Lưu vào thư viện"}>
+                                    <PlusCircleOutlined 
+                                        onClick={() => addIntoFavorite(currentTrack.id)}
+                                    />
+                                </Tooltip>
+                                :
+                                <Tooltip 
+                                    className="find-tracks-add-btn" 
+                                    placement="top" 
+                                    title={"Đã thêm vào danh sách này"}
+                                                                                                        
+                                >
+                                    <CheckCircleFilled 
+                                        style={{
+                                            color: '#1ed35e'
+                                        }}
+                                    />
+                                </Tooltip>
+                            )
+                        }
                     </div>
                 </>
             ) : (
@@ -254,7 +360,7 @@ function MediaControls() {
             <div className="MediaControls_controls">
                 <div className="controls-btn">
                     <Tooltip className="prev" placement="top" title={"Trước"}>
-                        <StepBackwardOutlined />
+                        <StepBackwardOutlined onClick={handleSwitchPrev}/>
                     </Tooltip>
                     <Tooltip className="play" placement="top" title={"Phát"}>
                         {isPlaying ? (
@@ -264,7 +370,7 @@ function MediaControls() {
                         )}
                     </Tooltip>
                     <Tooltip className="next" placement="top" title={"Tiếp"}>
-                        <StepForwardOutlined />
+                        <StepForwardOutlined onClick={handleSwitchNext}/>
                     </Tooltip>
                 </div>
                 <div className="duration">
