@@ -6,8 +6,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'profile_image_path', 'is_premium', 'role']
-        read_only_fields = ['id', 'is_premium', 'role']
-        extra_kwargs = {'password': {'write_only': True}}
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'password': {'write_only': True}, 
+            'email': {'required': False},
+            'profile_image_path': {'required': False},
+
+        }
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
@@ -16,6 +21,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'confirm_password', 'profile_image_path']
+        extra_kwargs = {
+            'profile_image_path': {'required': False},
+        }
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:

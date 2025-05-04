@@ -12,35 +12,24 @@ function DangNhap() {
         const matKhauE = document.getElementById('matkhau')
         
         if(validation(tenDangNhapE) && validation(matKhauE)) {
-            try {
-                const username = tenDangNhapE.value.trim();
-                const password = matKhauE.value.trim();
-                const response = await loginAPI(username, password);
-
-                if(response.token) {
-                    // Lưu token vào localStorage
-                    localStorage.setItem('token', response.token);
-                    // Lưu thông tin user vào sessionStorage
-                    sessionStorage.setItem('nguoidung', JSON.stringify(response.user));
-                    
-                    // Điều hướng dựa vào role
-                    if(response.user.idquyen === 0) {
-                        window.location.href = "/nhanvien/nhandon";
-                    } else if(response.user.idquyen === 1) {
-                        window.location.href = "/quanly/donhang";
-                    } else if(response.user.idquyen === 2) {
-                        window.location.href = "/bep/nhandon";
-                    } else {
-                        window.location.href = "/";
-                    }
+            const username = tenDangNhapE.value.trim();
+            const password = matKhauE.value.trim();
+            const data = await loginAPI(username, password);
+            if(data.user) {
+                localStorage.setItem('user', JSON.stringify(data.user))
+                if(data.user.role === 0) {
+                    window.location.href = "/home"
+                } else if(data.user.role === 1) {
+                    window.location.href = "/admin/dashboard"
                 } else {
-                    NotifyError(response.message || "Đăng nhập thất bại");
+                    window.location.href = "/"
                 }
-            } catch (error) {
-                NotifyError(error.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.");
+            } else {
+                NotifyError(data.error)
             }
+            
         } else {
-            NotifyWarning('Vui lòng nhập thông tin đầy đủ');
+            NotifyWarning('Vui lòng nhập thông tin đầy đủ')
         }
     }
 
@@ -57,7 +46,11 @@ function DangNhap() {
 
                     <div className="DangNhap_option">
                         <div className="DangNhap_option-quenMatKhau">
-                            <span onClick={() => navigate("/signup")}>
+                            <span 
+                                onClick={() => {
+                                    navigate("/signup");
+                                }}
+                            >
                                 Đăng Ký
                             </span>
                         </div>

@@ -4,24 +4,17 @@ import { Modal } from "antd";
 // Tạo Context
 const TrackContext = createContext();
 
+
 // Provider để bọc toàn bộ ứng dụng
 export function TrackProvider({ children }) {
     const [trackInfo, setTrackInfo] = useState(() => {
         const saved = localStorage.getItem("trackInfo");
-        console.log(">>> trackInfo: ", JSON.parse(saved))
         return saved ? JSON.parse(saved) : {};
     });
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isClick, setIsClick] = useState(null);
-    const [isClickPlaylist, setIsClickPlaylist] = useState({});
-    const [user, setUser] = useState({
-        id: 1,
-        username: 'Trần Văn A',
-        image_file_path: null,
-        email: 'tranvana@gmail.com',
-        password: '123456',
-        profile_image_path: null,
-        isPremium: 0
+    const [user, setUser] = useState(() => {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : {};
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,14 +26,18 @@ export function TrackProvider({ children }) {
         }
     }, [trackInfo]);
 
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem("user", JSON.stringify(user));
+        }
+    }, [user]);
+
 
     return (
         <TrackContext.Provider 
             value={{ 
                 trackInfo ,setTrackInfo, 
                 isPlaying, setIsPlaying, 
-                isClick, setIsClick,
-                isClickPlaylist, setIsClickPlaylist,
                 user, setUser,
                 isModalOpen, setIsModalOpen
             }}
@@ -50,6 +47,7 @@ export function TrackProvider({ children }) {
                 className="modal-prenium-inform"
                 open={isModalOpen} 
                 onCancel={() => setIsModalOpen(false)} 
+                onOk={() => window.location.href = `/prenium/${user.id}`}
                 width={600}
                 centered
             >

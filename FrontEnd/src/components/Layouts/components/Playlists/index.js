@@ -4,66 +4,32 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PlusOutlined, ReadFilled, SearchOutlined, HeartFilled, PushpinFilled } from '@ant-design/icons';
 import { Tooltip, Input } from "antd";
+import { createPlaylistAPI, getPlaylistsAPI } from "../../../../services/PlaylistAPI";
+import { NotifyError, NotifySuccess, NotifyWarning } from "../../../components/Toast";
+import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
 
 function Playlists() {
     const navigate = useNavigate();
     const [playlists, setPlaylists] = useState([]);
+    const [favorite, setFavorite] = useState(null);
     const [searchKeyword, setSearchKeyword] = useState("");
-    const {trackInfo, setTrackInfo} = useTrack();
+    const {trackInfo, setTrackInfo, user} = useTrack();
     
     const [filterPlaylists, setFilterPlaylists] = useState([]);
 
     
 
     // Mock Data 
-    const users = [
-        {
-            id: 1,
-            username: 'Trần Văn A',
-            image_file_path: null,
-            email: 'tranvana@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-        {
-            id: 2,
-            username: 'Trần Văn B',
-            image_file_path: null,
-            email: 'tranvanb@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-        {
-            id: 3,
-            username: 'Trần Văn C',
-            image_file_path: null,
-            email: 'tranvanc@gmail.com',
-            password: '123456',
-            profile_image_path: null,
-            isPrenium: 0
-        },
-    ]
-
-    const listPlaylist = [
-        {
-            id: 1,
-            name: 'Danh sách phát của tôi #1',
-            user_id: 1,
-            image_file_path: null
-        },
-        {
-            id: 2,
-            name: 'Playlist usuk này chill lắm',
-            user_id: 1,
-            image_file_path: null
-        },
-        
-    ]
 
     useEffect(() => {
-        setPlaylists(listPlaylist);
+        ( async () => {
+            const dataPlaylists = await getPlaylistsAPI();
+            const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+            setPlaylists(dataPlaylists.playlists || []);
+            setFavorite(dataFavorite.favorite || null);
+
+
+        })();
     }, []);
 
     useEffect(() => {
@@ -82,33 +48,21 @@ function Playlists() {
     }, [searchKeyword, playlists]);
 
 
-    function createPlaylist()
-    {
-        const namePlaylist = `Danh sách phát của tôi #${playlists.length + 1}`;
-        const playlist = {
-            id: 3,
-            name: namePlaylist,
-            user_id: 1,
-            image_file_path: null
+    const createPlaylist = async () => {
+        const dataCreatePlaylist = await createPlaylistAPI(user.id, null)
+        if(dataCreatePlaylist.success)
+        {
+            const dataPlaylists = await getPlaylistsAPI();
+            setPlaylists(dataPlaylists.playlists);
+            NotifySuccess("Tạo playlist thành công");
+            navigate(`/playlist/${dataCreatePlaylist.playlist.id}`);
         }
-        const newPlaylists = [...playlists];
-        newPlaylists.push(playlist);
-        setPlaylists(newPlaylists);
-        navigate(`/playlist/${playlist.id}`);
+        else
+        {
+            console.log(">>> error: ", dataCreatePlaylist.error);
+        }
     }
 
-
-    function getUserNameById(user_id)
-    {
-        const user = users.find(item => item.id === user_id);
-        return user ? user.username : null;
-    }
-
-    function getIdUser()
-    {
-        const idUser = localStorage.getItem("trackInfo");
-        return parseInt(idUser);
-    }
 
     
 
@@ -163,36 +117,39 @@ function Playlists() {
                 </div>
 
                 <div className="wrap-playlists">
-                    <div className="playlist" onClick={() => navigate(`/favorite/${1}`)}>
-                        <div className="liked-image">
-                            <HeartFilled 
-                                style={{
-                                    color: 'white'
-                                }}
-                            />
-                        </div>
-                        <div className="title">
-                            <span 
-                                className="main-title" 
-                                style={{
-                                    color: `${(trackInfo.type === "favorite") ? '#1ed35e' : 'white'}`
-                                }}
-                            >
-                                Bài hát đã thích
-                            </span>
-                            <span className="sub-title" style={{color: '#b3b3b3', fontSize: '13px'}}>
-                                <PushpinFilled 
+                    { 
+                        favorite && 
+                        <div className="playlist" onClick={() => navigate(`/favorite/${favorite.id}`)}>
+                            <div className="liked-image">
+                                <HeartFilled 
                                     style={{
-                                        color: '#1cc659'
+                                        color: 'white'
                                     }}
                                 />
-                                &nbsp;
-                                Danh sách phát
-                                &#8226;
-                                1 Bài hát
-                            </span>
+                            </div>
+                            <div className="title">
+                                <span 
+                                    className="main-title" 
+                                    style={{
+                                        color: `${(trackInfo.type === "favorite") ? '#1ed35e' : 'white'}`
+                                    }}
+                                >
+                                    Bài hát đã thích
+                                </span>
+                                <span className="sub-title" style={{color: '#b3b3b3', fontSize: '13px'}}>
+                                    <PushpinFilled 
+                                        style={{
+                                            color: '#1cc659'
+                                        }}
+                                    />
+                                    &nbsp;
+                                    Danh sách phát
+                                    &#8226;
+                                    1 Bài hát
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                    }
                     {
                         filterPlaylists.length !== 0 ?
                         filterPlaylists.map((item, index) => {
@@ -200,7 +157,7 @@ function Playlists() {
                                 <div className="playlist" onClick={() => navigate(`/playlist/${item.id}`)}>
                                     <div className="image">
                                         <img 
-                                            src={`${process.env.PUBLIC_URL}/${item.img_file_path ? item.img_file_path : 'default_music.png'}`} 
+                                            src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`} 
                                             style={{
                                                 width: '100%',
                                                 height: '100%',
@@ -222,12 +179,12 @@ function Playlists() {
                                             Danh sách phát
                                             &#8226;
                                             &nbsp;
-                                            {getUserNameById(item.user_id)}
+                                            {user.username}
                                         </span>
                                     </div>
                                 </div>
                             );
-                        }) : 'null'
+                        }) : ''
                     }
                     
                     

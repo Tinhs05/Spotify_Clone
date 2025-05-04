@@ -1,29 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import "./HomePage.css";
 import { PlayCircleFilled } from '@ant-design/icons';
 import { Tooltip, Popconfirm } from "antd";
 import GenreTracks from "./GenreTracks";
 import VideoList from "./VideoList";
+import { getGenresAPI } from '../../../../services/GenreAPI';
 
 function HomePage() {
-    const [page, setPage] = useState("HomePage");
+    const [genres, setGenres] = useState([]);
 
     // Mock database
-    const genres = [
-        {
-            id: 1,
-            name: 'Ballad'
-        },
-        {
-            id: 2,
-            name: 'Edm'
-        },
-        {
-            id: 3,
-            name: 'Lofi'
-        }
-    ]
+    useEffect(() => {
+        ( async () => { 
+            const dataGenres =  await getGenresAPI();
+            if(dataGenres.genres)
+            {
+                setGenres(dataGenres.genres);
+                
+            }
+            else
+            {
+                console.log(dataGenres.error);
+            }
+        })();
+    }, []);
+
+
 
     return (
         <div className="HomePage">
@@ -57,7 +60,7 @@ function HomePage() {
                                             Hiện tất cả
                                         </Link>
                                     </div>
-                                    <GenreTracks genreID={item.id} genreName={item.name} />
+                                    <GenreTracks idGenre={item.id} nameGenre={item.name} />
                                 </div>;
                     }) : ''
                 }

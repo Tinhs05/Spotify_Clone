@@ -13,3 +13,10 @@
     flex: 1;
     background-color: #f4f6f9;
 }
+
+.ant-layout-sider {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+}
