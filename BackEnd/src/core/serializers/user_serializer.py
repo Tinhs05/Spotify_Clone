@@ -5,14 +5,25 @@ from core.models.user import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'profile_image_path', 'is_premium', 'role']
+        fields = ['id', 'username', 'email', 'password', 'profile_image_path', 'is_premium', 'role']
         read_only_fields = ['id']
         extra_kwargs = {
-            'password': {'write_only': True}, 
+            'password': {'write_only': True, 'required': False},
             'email': {'required': False},
             'profile_image_path': {'required': False},
-
         }
+
+    def update(self, instance, validated_data):
+        # Nếu có password mới, hash nó
+        if 'password' in validated_data:
+            validated_data['password'] = make_password(validated_data['password'])
+        
+        # Cập nhật các trường khác
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})

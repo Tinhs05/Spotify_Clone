@@ -76,18 +76,21 @@ const UserManagement = () => {
         username: values.username,
         email: values.email,
         role: values.role,
-        is_premium: values.is_premium
+        is_premium: values.is_premium || false,
+        profile_image_path: null
       };
 
-      // Chỉ thêm password nếu có nhập mới
-      if (values.password) {
-        userData.password = values.password;
-      }
-
       if (editingUser) {
+        // Khi sửa, chỉ gửi password nếu có thay đổi
+        if (values.password) {
+          userData.password = values.password;
+        }
         await adminService.updateUser(editingUser.id, userData);
         message.success(MESSAGES.SUCCESS.UPDATE_USER);
       } else {
+        // Khi tạo mới, thêm password và confirm_password
+        userData.password = values.password;
+        userData.confirm_password = values.confirmPassword;
         await adminService.createUser(userData);
         message.success(MESSAGES.SUCCESS.CREATE_USER);
       }
