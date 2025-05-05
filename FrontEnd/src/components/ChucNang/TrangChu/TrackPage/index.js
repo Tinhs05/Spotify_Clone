@@ -4,12 +4,16 @@ import { useParams } from 'react-router-dom';
 import "./TrackPage.css";
 import { PlayCircleFilled, CloseCircleOutlined,
     ClockCircleOutlined, CaretRightFilled, PlusCircleOutlined
+    ,CheckCircleFilled 
 } from '@ant-design/icons';
-import { Tooltip, Popconfirm } from "antd";
+import { Tooltip, Popconfirm, message } from "antd";
 import { getTrackByIdAPI } from "../../../../services/TrackAPI";
+import { getFavoriteTracksAPI, createFavoriteTrackAPI } from "../../../../services/FavoriteTrackAPI";
+import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
 
 function TrackPage() {
     const [track, setTrack ] = useState([]);
+    const [isInFavorite, setIsInFavorite] = useState(false);
     const { setTrackInfo, setIsPlaying, user, isModalOpen, setIsModalOpen } = useTrack();
     const { idTrack } = useParams();
 
@@ -28,6 +32,37 @@ function TrackPage() {
             }
         })();
     }, []);
+
+    useEffect(() => {
+        const checkFavorite = async () => {
+            if (track) {
+                const result = await checkTrackInFavorite(track.id);
+                setIsInFavorite(result);
+            }
+        };
+        checkFavorite();
+    }, [track]);
+
+    const addIntoFavorite = async (idTrack) => {
+        const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+        const dataCreateFavoriteTrack = await createFavoriteTrackAPI(dataFavorite.favorite.id, idTrack);
+        if(dataCreateFavoriteTrack.success)
+        {
+            setIsInFavorite(true);
+            message.success('Đã thêm bài hát vào favorite thành công!');
+        }
+    }
+    
+    const checkTrackInFavorite = async (idTrack) => {
+        const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+        const favoriteSongs = await getFavoriteTracksAPI(dataFavorite.favorite.id);
+        if(favoriteSongs.favorite_tracks)
+        {
+            return favoriteSongs.favorite_tracks.some(song => song.id === idTrack);
+        }
+        return false;
+            
+    };
 
 
     const formatTime = (seconds) => {
@@ -103,10 +138,28 @@ function TrackPage() {
                             }}
                         />
                     </Tooltip>
-                    <Tooltip className="add-into-playlist" placement="top" title={"Lưu vào thư viện"}>
-                        <PlusCircleOutlined 
-                        />
-                    </Tooltip>
+                    {
+                        (!isInFavorite ?
+                            <Tooltip className="add-into-playlist" placement="top" title={"Lưu vào thư viện"}>
+                                <PlusCircleOutlined 
+                                    onClick={() => addIntoFavorite(track.id)}
+                                />
+                            </Tooltip>
+                            :
+                            <Tooltip 
+                                className="add-into-playlist" 
+                                placement="top" 
+                                title={"Đã thêm vào danh sách này"}
+                                                                                                        
+                            >
+                                <CheckCircleFilled 
+                                    style={{
+                                        color: '#1ed35e'
+                                    }}
+                                />
+                            </Tooltip>
+                        )
+                    }
                 </div>
 
                 <div className="artist">

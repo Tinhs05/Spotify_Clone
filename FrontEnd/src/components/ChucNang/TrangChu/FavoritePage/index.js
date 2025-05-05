@@ -88,7 +88,7 @@ function FavoritePage() {
                                 setIsPlaying(true)
                             }}
                             style={{
-                                opacity: `${favoriteSongs.length === 0 ? 0 : 1}`
+                                display: `${favoriteSongs.length === 0 ? 'none' : 'block'}`
                             }}
                         />
                     </Tooltip>

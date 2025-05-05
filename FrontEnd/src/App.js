@@ -7,10 +7,10 @@ import { TrackProvider, useTrack } from "../src/components/Layouts/contexts/Trac
 
 function App() {
   
-  const user = JSON.parse(localStorage.getItem('user') || null);
+  const user = JSON.parse(localStorage.getItem('user')) || {};
 
 
-  if (!user) 
+  if (Object.keys(user).length === 0) 
   {
     return (
       <Router>
