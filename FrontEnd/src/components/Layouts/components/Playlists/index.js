@@ -154,10 +154,10 @@ function Playlists() {
                         filterPlaylists.length !== 0 ?
                         filterPlaylists.map((item, index) => {
                             return (
-                                <div className="playlist" onClick={() => navigate(`/playlist/${item.id}`)}>
+                                <div className="playlist" key={item.id} onClick={() => navigate(`/playlist/${item.id}`)}>
                                     <div className="image">
                                         <img 
-                                            src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`} 
+                                            src={item.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`}
                                             style={{
                                                 width: '100%',
                                                 height: '100%',

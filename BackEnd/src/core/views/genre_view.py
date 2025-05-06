@@ -22,7 +22,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def get_genres(self, request):
-        genres = Genre.objects.filter(track__isnull=False).distinct() 
+        genres = Genre.objects.all()
         serializer = GenreSerializer(genres, many=True)
         if serializer.data:
             return Response({
@@ -50,14 +50,10 @@ class GenreViewSet(viewsets.ModelViewSet):
         genre = self.get_object()
         tracks = Track.objects.filter(genre=genre)
         serializer = TrackSerializer(tracks, many=True)
-        if serializer.data:
-            return Response({
-                'success': True,
-                'tracks': serializer.data,
-            }, status=status.HTTP_200_OK)
         return Response({
-            'error': 'Get tracks is failed'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            'success': True,
+            'tracks': serializer.data,
+        }, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def add_genre(self, request):

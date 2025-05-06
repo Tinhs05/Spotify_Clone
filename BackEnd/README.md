@@ -48,56 +48,106 @@ src/
 
 ## Danh sách API
 
-### App Users
+### Users
 
-| Phương thức | Endpoint                       | Mô tả                           |
-|-------------|--------------------------------|---------------------------------|
-| POST        | `/api/users/register/`         | Đăng ký tài khoản mới          |
-| POST        | `/api/users/login/`            | Đăng nhập                       |
-| POST        | `/api/users/request_password_reset/` | Yêu cầu reset mật khẩu    |
-| POST        | `/api/users/confirm_password_reset/` | Xác nhận reset mật khẩu   |
-| GET         | `/api/users/`                  | Lấy danh sách users (admin)     |
-| POST        | `/api/users/`                  | Tạo user mới                    |
-| GET         | `/api/users/{id}/`             | Lấy thông tin user cụ thể       |
-| PUT         | `/api/users/{id}/`             | Cập nhật thông tin user         |
-| DELETE      | `/api/users/{id}/`             | Xóa user                        |
-| PUT         | `/api/users/{id}/update_profile/` | Cập nhật profile            |
-| PUT         | `/api/users/{id}/update_premium_status/` | Cập nhật trạng thái premium |
-| PUT         | `/api/users/{id}/update_profile_image/` | Cập nhật ảnh đại diện    |
-| POST        | `/api/users/{id}/register_premium/` | Đăng ký tài khoản premium  |
+| Phương thức | Endpoint                                      | Mô tả                                 |
+|-------------|-----------------------------------------------|---------------------------------------|
+| GET         | `/api/users/`                                 | Lấy danh sách users                   |
+| POST        | `/api/users/`                                 | Tạo user mới                          |
+| GET         | `/api/users/{id}/`                            | Lấy thông tin user cụ thể             |
+| PUT         | `/api/users/{id}/`                            | Cập nhật thông tin user               |
+| DELETE      | `/api/users/{id}/`                            | Xóa user                              |
+| GET         | `/api/users/get_users/`                       | Lấy danh sách users (custom)          |
+| POST        | `/api/users/register/`                        | Đăng ký tài khoản mới                 |
+| POST        | `/api/users/login/`                           | Đăng nhập                             |
+| POST        | `/api/users/request_password_reset/`          | Yêu cầu reset mật khẩu                |
+| POST        | `/api/users/confirm_password_reset/`          | Xác nhận reset mật khẩu               |
+| POST        | `/api/users/{id}/register_premium/`           | Đăng ký tài khoản premium             |
+| PUT         | `/api/users/{id}/update_profile/`             | Cập nhật profile                      |
+| PUT         | `/api/users/{id}/update_premium_status/`      | Cập nhật trạng thái premium           |
+| PUT         | `/api/users/{id}/update_profile_image/`       | Cập nhật ảnh đại diện                 |
 
-### App Music
+### Tracks
 
-| Phương thức | Endpoint                       | Mô tả                           |
-|-------------|--------------------------------|---------------------------------|
-| GET         | `/api/music/songs/`            | Lấy danh sách tất cả các bài hát |
-| GET         | `/api/music/songs/<id>/`       | Lấy chi tiết một bài hát cụ thể  |
-| GET         | `/api/music/songs/search/?query=<string>` | Tìm kiếm bài hát theo tên, nghệ sĩ hoặc album |
-| GET         | `/api/music/artists/`          | Lấy danh sách tất cả các nghệ sĩ  |
-| GET         | `/api/music/artists/<id>/`     | Lấy chi tiết một nghệ sĩ cụ thể   |
-| GET         | `/api/music/albums/`           | Lấy danh sách tất cả các album    |
-| GET         | `/api/music/albums/<id>/`      | Lấy chi tiết một album cụ thể     |
-| GET         | `/api/music/albums/<id>/songs/`| Lấy danh sách bài hát trong một album |
+| Phương thức | Endpoint                        | Mô tả                                 |
+|-------------|---------------------------------|---------------------------------------|
+| GET         | `/api/tracks/`                  | Lấy danh sách tất cả track            |
+| POST        | `/api/tracks/`                  | Tạo mới track                         |
+| GET         | `/api/tracks/{id}/`             | Lấy chi tiết một track                |
+| PUT         | `/api/tracks/{id}/`             | Cập nhật một track                    |
+| DELETE      | `/api/tracks/{id}/`             | Xóa một track                         |
+| GET         | `/api/tracks/get_tracks/`       | Lấy danh sách tất cả track (custom)   |
+| GET         | `/api/tracks/get_track_by_id/{id}/` | Lấy chi tiết một track (custom)   |
+| GET         | `/api/tracks/get_video_list/`   | Lấy danh sách video track             |
+| GET         | `/api/tracks/get_video_by_id/{id}/` | Lấy chi tiết video track           |
+| POST        | `/api/tracks/add_track/`        | Thêm mới track (custom)               |
 
-### App Playlists
+### Genres
 
-| Phương thức | Endpoint                       | Mô tả                           |
-|-------------|--------------------------------|---------------------------------|
-| POST        | `/api/playlists/`              | Tạo một playlist mới            |
-| GET         | `/api/playlists/`              | Lấy danh sách tất cả playlist của người dùng |
-| GET         | `/api/playlists/<id>/`         | Lấy chi tiết một playlist cụ thể |
-| PUT         | `/api/playlists/<id>/`         | Cập nhật thông tin của một playlist |
-| DELETE      | `/api/playlists/<id>/`         | Xóa một playlist                |
-| POST        | `/api/playlists/<id>/songs/`   | Thêm bài hát vào playlist       |
-| DELETE      | `/api/playlists/<id>/songs/<song_id>/` | Xóa bài hát khỏi playlist |
+| Phương thức | Endpoint                        | Mô tả                                 |
+|-------------|---------------------------------|---------------------------------------|
+| GET         | `/api/genres/`                  | Lấy danh sách genre                   |
+| POST        | `/api/genres/`                  | Tạo mới genre                         |
+| GET         | `/api/genres/{id}/`             | Lấy chi tiết một genre                |
+| PUT         | `/api/genres/{id}/`             | Cập nhật một genre                    |
+| DELETE      | `/api/genres/{id}/`             | Xóa một genre                         |
+| GET         | `/api/genres/get_genres/`       | Lấy danh sách genre có track          |
+| GET         | `/api/genres/get_genre_by_id/{id}/` | Lấy chi tiết genre (custom)       |
+| GET         | `/api/genres/get_tracks_by_genre/{id}/` | Lấy danh sách track theo genre  |
+| POST        | `/api/genres/add_genre/`        | Thêm mới genre (custom)               |
 
-### App Streaming
+### Playlists
 
-| Phương thức | Endpoint                       | Mô tả                           |
-|-------------|--------------------------------|---------------------------------|
-| POST        | `/api/streaming/start/`        | Bắt đầu một phiên phát nhạc     |
-| POST        | `/api/streaming/end/`          | Kết thúc một phiên phát nhạc    |
-| GET         | `/api/streaming/history/`      | Lấy lịch sử phát nhạc của người dùng |
+| Phương thức | Endpoint                        | Mô tả                                 |
+|-------------|---------------------------------|---------------------------------------|
+| GET         | `/api/playlists/`               | Lấy danh sách playlist                |
+| POST        | `/api/playlists/`               | Tạo mới playlist                      |
+| GET         | `/api/playlists/{id}/`          | Lấy chi tiết playlist                 |
+| PUT         | `/api/playlists/{id}/`          | Cập nhật playlist                     |
+| DELETE      | `/api/playlists/{id}/`          | Xóa playlist                          |
+| GET         | `/api/playlists/get_playlists/` | Lấy danh sách playlist (custom)       |
+| GET         | `/api/playlists/get_playlist_by_id/{id}/` | Lấy chi tiết playlist (custom) |
+| POST        | `/api/playlists/{id}/add_playlist/` | Thêm playlist cho user           |
+| POST        | `/api/playlists/{id}/update_playlist/` | Cập nhật playlist                |
+| POST        | `/api/playlists/{id}/delete_playlist/` | Xóa playlist                     |
+
+### Playlist Tracks
+
+| Phương thức | Endpoint                        | Mô tả                                 |
+|-------------|---------------------------------|---------------------------------------|
+| GET         | `/api/playlist_tracks/`         | Lấy danh sách playlist_track          |
+| POST        | `/api/playlist_tracks/`         | Tạo mới playlist_track                |
+| GET         | `/api/playlist_tracks/{id}/`    | Lấy chi tiết playlist_track           |
+| PUT         | `/api/playlist_tracks/{id}/`    | Cập nhật playlist_track               |
+| DELETE      | `/api/playlist_tracks/{id}/`    | Xóa playlist_track                    |
+| GET         | `/api/playlist_tracks/get_playlist_tracks/{id}/` | Lấy track trong playlist      |
+| POST        | `/api/playlist_tracks/add_playlist_track/` | Thêm track vào playlist        |
+| POST        | `/api/playlist_tracks/delete_playlist_track/` | Xóa track khỏi playlist       |
+
+### Favorite
+
+| Phương thức | Endpoint                        | Mô tả                                 |
+|-------------|---------------------------------|---------------------------------------|
+| GET         | `/api/favorites/`               | Lấy danh sách favorite                |
+| POST        | `/api/favorites/`               | Tạo mới favorite                      |
+| GET         | `/api/favorites/{id}/`          | Lấy chi tiết favorite                 |
+| PUT         | `/api/favorites/{id}/`          | Cập nhật favorite                     |
+| DELETE      | `/api/favorites/{id}/`          | Xóa favorite                          |
+| GET         | `/api/favorites/get_favorite_by_user_id/{id}/` | Lấy favorite theo user        |
+| POST        | `/api/favorites/{id}/add_favorite/` | Thêm favorite cho user           |
+
+### Favorite Tracks
+
+| Phương thức | Endpoint                        | Mô tả                                 |
+|-------------|---------------------------------|---------------------------------------|
+| GET         | `/api/favorite_tracks/`         | Lấy danh sách favorite_track          |
+| POST        | `/api/favorite_tracks/`         | Tạo mới favorite_track                |
+| GET         | `/api/favorite_tracks/{id}/`    | Lấy chi tiết favorite_track           |
+| PUT         | `/api/favorite_tracks/{id}/`    | Cập nhật favorite_track               |
+| DELETE      | `/api/favorite_tracks/{id}/`    | Xóa favorite_track                    |
+| GET         | `/api/favorite_tracks/get_favorite_tracks/{id}/` | Lấy track yêu thích của user  |
+| POST        | `/api/favorite_tracks/add_favorite_track/` | Thêm track vào favorite         |
+| POST        | `/api/favorite_tracks/delete_favorite_track/` | Xóa track khỏi favorite        |
 
 ---
 

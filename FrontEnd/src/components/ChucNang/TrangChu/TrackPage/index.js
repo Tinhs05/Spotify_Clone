@@ -10,6 +10,7 @@ import { Tooltip, Popconfirm, message } from "antd";
 import { getTrackByIdAPI } from "../../../../services/TrackAPI";
 import { getFavoriteTracksAPI, createFavoriteTrackAPI } from "../../../../services/FavoriteTrackAPI";
 import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
+import { NotifyWarning, NotifyError } from "../../../components/Toast";
 
 function TrackPage() {
     const [track, setTrack ] = useState([]);
@@ -44,24 +45,45 @@ function TrackPage() {
     }, [track]);
 
     const addIntoFavorite = async (idTrack) => {
-        const dataFavorite = await getFavoriteByIdUserAPI(user.id);
-        const dataCreateFavoriteTrack = await createFavoriteTrackAPI(dataFavorite.favorite.id, idTrack);
-        if(dataCreateFavoriteTrack.success)
-        {
-            setIsInFavorite(true);
-            message.success('Đã thêm bài hát vào favorite thành công!');
+        if (!user || !user.id) {
+            NotifyWarning("Vui lòng đăng nhập để thêm bài hát vào yêu thích");
+            return;
+        }
+
+        try {
+            const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+            if (!dataFavorite || !dataFavorite.favorite) {
+                NotifyError("Không tìm thấy danh sách yêu thích");
+                return;
+            }
+
+            const dataCreateFavoriteTrack = await createFavoriteTrackAPI(dataFavorite.favorite.id, idTrack);
+            if(dataCreateFavoriteTrack.success) {
+                setIsInFavorite(true);
+                message.success('Đã thêm bài hát vào favorite thành công!');
+            }
+        } catch (error) {
+            console.error('Error adding to favorite:', error);
+            NotifyError("Thêm bài hát vào yêu thích thất bại");
         }
     }
     
     const checkTrackInFavorite = async (idTrack) => {
-        const dataFavorite = await getFavoriteByIdUserAPI(user.id);
-        const favoriteSongs = await getFavoriteTracksAPI(dataFavorite.favorite.id);
-        if(favoriteSongs.favorite_tracks)
-        {
-            return favoriteSongs.favorite_tracks.some(song => song.id === idTrack);
+        if (!user || !user.id) return false;
+        
+        try {
+            const dataFavorite = await getFavoriteByIdUserAPI(user.id);
+            if (!dataFavorite || !dataFavorite.favorite) return false;
+
+            const favoriteSongs = await getFavoriteTracksAPI(dataFavorite.favorite.id);
+            if(favoriteSongs.favorite_tracks) {
+                return favoriteSongs.favorite_tracks.some(song => song && song.id === idTrack);
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking favorite:', error);
+            return false;
         }
-        return false;
-            
     };
 
 
@@ -77,7 +99,7 @@ function TrackPage() {
             <div className="track_header">
                 <div className="track-img">
                     <img 
-                        src={`${process.env.PUBLIC_URL}/assets/images/${track?.image_file_path || 'default_music.png'}`}
+                        src={track?.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`}
                         style={{
                             width: '100%',
                             height: '100%',

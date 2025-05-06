@@ -8,12 +8,10 @@ class Track(models.Model):
     duration = models.IntegerField()
     artist = models.CharField(max_length=150)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
-    audio_file_path = models.CharField(max_length=255, blank=True, null=True)
-    video_file_path = models.CharField(max_length=255, blank=True, null=True)
-    image_file_path = models.CharField(max_length=255, blank=True, null=True)
+    audio_file_path = models.CharField(max_length=1000, blank=True, null=True)
+    video_file_path = models.CharField(max_length=1000, blank=True, null=True)
+    image_file_path = models.CharField(max_length=1000, blank=True, null=True)
     is_premium = models.IntegerField(default=0)
-
-
 
     class Meta:
         db_table = 'track'
@@ -35,7 +33,6 @@ class Track(models.Model):
             video_file_path=video_file_path,
             image_file_path=image_file_path,
             is_premium=is_premium,
-
         )
         track.save()
         return track

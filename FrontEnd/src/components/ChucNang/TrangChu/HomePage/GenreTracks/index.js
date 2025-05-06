@@ -70,13 +70,11 @@ function GenreTracks(props) {
                                 </Tooltip>
                                 <div className="image">
                                     <img 
-                                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            borderRadius: '5px'
-                                        }}
+                                        src={item.image_file_path && item.image_file_path.startsWith('http')
+                                            ? item.image_file_path
+                                            : `${process.env.PUBLIC_URL}/assets/images/default_music.png`}
+                                        alt={item.title}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 5 }}
                                     />
                                 </div>
                                 <div className="title">

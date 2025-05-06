@@ -35,7 +35,7 @@ function VideoList() {
                 videoList.length !== 0 ?
                 videoList.map((item, index) => {
                     return (
-                        <div className="video">
+                        <div className="video" key={item.id}>
                             <Tooltip className="play-btn" placement="top" title={`Phát ${item.title}`}>
                                 <PlayCircleFilled 
                                     onClick={() => {
@@ -60,14 +60,11 @@ function VideoList() {
                             </Tooltip>
                             <div className="image">
                                 <img 
-                                    src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`} 
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        borderRadius: '5px',
-                                        transition: 'transform 0.5s ease'
-                                    }}
+                                    src={item.image_file_path && item.image_file_path.startsWith('http')
+                                        ? item.image_file_path
+                                        : `${process.env.PUBLIC_URL}/assets/images/default_music.png`}
+                                    alt={item.title}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 5, transition: 'transform 0.5s ease' }}
                                 />
                             </div>
                             <div className="title">

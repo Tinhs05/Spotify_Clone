@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Select, Tag, Switch } from 'antd';
 import adminService from '../../../services/adminService';
 import { MESSAGES, FORM_RULES, TABLE_PAGINATION, USER_ROLES, USER_ROLE_LABELS } from '../../../constants/admin';
+import { createFavoriteAPI } from '../../../services/FavoriteAPI';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -91,8 +92,12 @@ const UserManagement = () => {
         // Khi tạo mới, thêm password và confirm_password
         userData.password = values.password;
         userData.confirm_password = values.confirmPassword;
-        await adminService.createUser(userData);
-        message.success(MESSAGES.SUCCESS.CREATE_USER);
+        const response = await adminService.createUser(userData);
+        if (response.success) {
+          // Create favorite playlist for new user
+          await createFavoriteAPI(response.user.id);
+          message.success(MESSAGES.SUCCESS.CREATE_USER);
+        }
       }
       setIsModalVisible(false);
       fetchUsers();

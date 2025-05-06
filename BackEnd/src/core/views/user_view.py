@@ -224,12 +224,12 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         profile_image = request.FILES.get('profile_image')
         if profile_image:
-            # Handle file upload and save path
-            # This is a placeholder - implement actual file handling logic
-            user.profile_image_path = f"profile_images/{user.id}/{profile_image.name}"
-            user.save()
-            serializer = self.get_serializer(user)
-            return Response(serializer.data)
+            if user.update_profile_image(profile_image):
+                serializer = self.get_serializer(user)
+                return Response(serializer.data)
+            return Response({
+                'error': 'Failed to upload profile image'
+            }, status=status.HTTP_400_BAD_REQUEST)
         return Response({
             'error': 'No profile image provided'
         }, status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,14 @@
 import axios from 'axios';
 import { api } from './config';
 
+// Tạo instance axios riêng cho user authentication
+const authAxios = axios.create({
+    baseURL: api,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
 // Đăng ký tài khoản mới
 export const registerAPI = async (userData) => {
   try {
@@ -14,13 +22,22 @@ export const registerAPI = async (userData) => {
 // Đăng nhập
 export const loginAPI = async (username, password) => {
   try {
-    const response = await axios.post(`${api}/api/users/login/`, {
+    const response = await authAxios.post('/api/users/login/', {
       username,
       password
     });
-    return response.data;
+    
+    if (response.data && response.data.user) {
+      localStorage.setItem('token', response.data.access);
+      return response.data;
+    }
+    
+    throw new Error('Đăng nhập thất bại');
   } catch (error) {
-    throw error;
+    if (error.response && error.response.data && error.response.data.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error('Không thể kết nối đến server');
   }
 };
 

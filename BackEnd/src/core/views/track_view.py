@@ -16,6 +16,11 @@ class TrackViewSet(viewsets.ModelViewSet):
     queryset = Track.objects.all()
     serializer_class = TrackSerializer
 
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            return TrackCreateSerializer
+        return TrackSerializer
+
     @action(detail=False, methods=['get'])
     def get_tracks(self, request):
         tracks = Track.objects.all()
@@ -69,15 +74,16 @@ class TrackViewSet(viewsets.ModelViewSet):
         serializer = TrackCreateSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                genre = serializer.save()
+                track = serializer.save()
                 return Response({
                     'success': True,
-                    'genre': TrackSerializer(genre).data,
+                    'track': TrackSerializer(track).data,
                 }, status=status.HTTP_201_CREATED)
             except IntegrityError:
                 return Response({
-                    'error': 'This genre already exists'
+                    'error': 'This track already exists'
                 }, status=status.HTTP_400_BAD_REQUEST)
+        print("Serializer errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     

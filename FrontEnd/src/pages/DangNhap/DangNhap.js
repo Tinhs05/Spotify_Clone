@@ -15,7 +15,7 @@ function DangNhap() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/api/login/', {
+            const response = await axios.post('http://localhost:8000/api/users/login/', {
                 username,
                 password,
             });
@@ -25,14 +25,16 @@ function DangNhap() {
                 localStorage.setItem('user', JSON.stringify({
                     id: response.data.id,
                     username: response.data.username,
-                    role: response.data.role  // Giữ nguyên giá trị số từ backend
+                    role: response.data.role
                 }));
 
                 // Chuyển hướng dựa vào role
                 if (response.data.role === 0) {
-                    navigate('/home');  // Chuyển đến trang chủ cho user thường
+                    window.location.href = '/home';  
+                } else if (response.data.role === 1) {
+                    window.location.href = '/admin/dashboard'; 
                 } else {
-                    navigate('/admin');  // Chuyển đến trang admin
+                    window.location.href = '/'; 
                 }
             }
         } catch (error) {

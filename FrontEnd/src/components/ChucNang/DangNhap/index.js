@@ -14,22 +14,33 @@ function DangNhap() {
         if(validation(tenDangNhapE) && validation(matKhauE)) {
             const username = tenDangNhapE.value.trim();
             const password = matKhauE.value.trim();
-            const data = await loginAPI(username, password);
-            if(data.user) {
-                localStorage.setItem('user', JSON.stringify(data.user))
-                if(data.user.role === 0) {
-                    window.location.href = "/home"
-                } else if(data.user.role === 1) {
-                    window.location.href = "/admin/dashboard"
-                } else {
-                    window.location.href = "/"
-                }
-            } else {
-                NotifyError(data.error)
-            }
             
+            try {
+                const data = await loginAPI(username, password);
+                if(data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('token', data.access);
+                    
+                    // Chuyển hướng dựa vào role
+                    if(data.user.role === 0) {
+                        navigate("/home", { replace: true });
+                    } else if(data.user.role === 1) {
+                        navigate("/admin/dashboard", { replace: true });
+                    } else {
+                        navigate("/", { replace: true });
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                NotifyError(error.message || 'Đăng nhập thất bại');
+                // Xóa thông tin đăng nhập cũ nếu có
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                // Chuyển về trang đăng nhập (trang chủ)
+                navigate("/", { replace: true });
+            }
         } else {
-            NotifyWarning('Vui lòng nhập thông tin đầy đủ')
+            NotifyWarning('Vui lòng nhập thông tin đầy đủ');
         }
     }
 

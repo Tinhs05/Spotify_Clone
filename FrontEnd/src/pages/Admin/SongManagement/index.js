@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, message, Space, Select, Tag, InputNu
 import { UploadOutlined } from '@ant-design/icons';
 import adminService from '../../../services/adminService';
 import { MESSAGES, FORM_RULES, TABLE_PAGINATION } from '../../../constants/admin';
+import axios from 'axios';
 
 const SongManagement = () => {
   const [songs, setSongs] = useState([]);
@@ -11,6 +12,9 @@ const SongManagement = () => {
   const [editingSong, setEditingSong] = useState(null);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [audioFile, setAudioFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
 
   const fetchSongs = async () => {
     try {
@@ -18,6 +22,8 @@ const SongManagement = () => {
       const res = await adminService.getSongs();
       console.log('API Response:', res.data); // Debug log
       const songsData = res.data?.tracks || [];
+      console.log('Songs data:', songsData); // Debug log
+      console.log('First song genre:', songsData[0]?.genre); // Debug log
       setSongs(Array.isArray(songsData) ? songsData : []);
     } catch (error) {
       console.error('Error fetching songs:', error);
@@ -33,6 +39,8 @@ const SongManagement = () => {
       const res = await adminService.getGenres();
       console.log('Genres Response:', res.data); // Debug log
       const genresData = res.data?.genres || [];
+      console.log('Genres data:', genresData); // Debug log
+      console.log('Number of genres:', genresData.length); // Debug log
       setGenres(Array.isArray(genresData) ? genresData : []);
     } catch (error) {
       console.error('Error fetching genres:', error);
@@ -55,7 +63,7 @@ const SongManagement = () => {
     setEditingSong(song);
     form.setFieldsValue({
       ...song,
-      genre: song.genre?.id
+      genre: song.genre?.id || song.genre // Lấy ID nếu là object, giữ nguyên nếu là ID
     });
     setIsModalVisible(true);
   };
@@ -83,21 +91,66 @@ const SongManagement = () => {
     });
   };
 
+  const handleAudioUpload = (file) => {
+    setAudioFile(file);
+    getAudioDuration(file).then(duration => form.setFieldsValue({ duration }));
+    return false;
+  };
+
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
+      // Upload file lên S3 nếu có
+      let audioUrl = '';
+      let imageUrl = '';
+      let videoUrl = '';
+
+      if (audioFile) {
+        const formData = new FormData();
+        formData.append('file', audioFile);
+        formData.append('object_type', 'track');
+        const res = await axios.post('http://localhost:8000/api/upload-to-s3/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        audioUrl = res.data.url;
+      } else {
+        audioUrl = values.audio_file_path || '';
+      }
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        formData.append('object_type', 'track');
+        const res = await axios.post('http://localhost:8000/api/upload-to-s3/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        imageUrl = res.data.url;
+      } else {
+        imageUrl = values.image_file_path || '';
+      }
+
+      if (videoFile) {
+        const formData = new FormData();
+        formData.append('file', videoFile);
+        formData.append('object_type', 'track');
+        const res = await axios.post('http://localhost:8000/api/upload-to-s3/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        videoUrl = res.data.url;
+      } else {
+        videoUrl = values.video_file_path || '';
+      }
+
       const songData = {
         title: values.title,
         duration: values.duration,
         artist: values.artist,
-        genre_id: values.genre,
-        audio_file_path: values.audio_file_path,
-        video_file_path: values.video_file_path,
-        image_file_path: values.image_file_path,
+        genre: values.genre, // Đảm bảo là id
+        audio_file_path: audioUrl,
+        video_file_path: videoUrl,
+        image_file_path: imageUrl,
         is_premium: values.is_premium ? 1 : 0
       };
-
-      console.log('Submitting song data:', songData); // Debug log
 
       if (editingSong) {
         await adminService.updateSong(editingSong.id, songData);
@@ -108,9 +161,12 @@ const SongManagement = () => {
       }
       setIsModalVisible(false);
       fetchSongs();
+      setAudioFile(null);
+      setImageFile(null);
+      setVideoFile(null);
     } catch (error) {
       console.error('Error submitting song:', error);
-      console.error('Error details:', error.response?.data); // Debug log
+      console.error('Error details:', error.response?.data);
       message.error(MESSAGES.ERROR.GENERAL + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
@@ -134,56 +190,14 @@ const SongManagement = () => {
     });
   };
 
-  const handleAudioUpload = async (file) => {
-    try {
-      // Kiểm tra định dạng file
-      if (!file.type.includes('audio/')) {
-        message.error('Vui lòng chọn file audio!');
-        return false;
-      }
-
-      // Lấy độ dài bài hát và lưu vào form (ẩn)
-      const duration = await getAudioDuration(file);
-      form.setFieldsValue({ duration });
-
-      // Tạo đường dẫn file
-      const filePath = `/media/audio/${file.name}`;
-      form.setFieldsValue({ audio_file_path: filePath });
-
-      return false; // Không tự động upload
-    } catch (error) {
-      console.error('Error getting audio duration:', error);
-      message.error('Không thể đọc file audio!');
-      return false;
-    }
-  };
-
   const handleImageUpload = (file) => {
-    // Kiểm tra định dạng file
-    if (!file.type.includes('image/')) {
-      message.error('Vui lòng chọn file ảnh!');
-      return false;
-    }
-
-    // Tạo đường dẫn file
-    const filePath = `/media/images/${file.name}`;
-    form.setFieldsValue({ image_file_path: filePath });
-
-    return false; // Không tự động upload
+    setImageFile(file);
+    return false;
   };
 
   const handleVideoUpload = (file) => {
-    // Kiểm tra định dạng file
-    if (!file.type.includes('video/')) {
-      message.error('Vui lòng chọn file video!');
-      return false;
-    }
-
-    // Tạo đường dẫn file
-    const filePath = `/media/videos/${file.name}`;
-    form.setFieldsValue({ video_file_path: filePath });
-
-    return false; // Không tự động upload
+    setVideoFile(file);
+    return false;
   };
 
   const columns = [
@@ -200,11 +214,14 @@ const SongManagement = () => {
     {
       title: 'Thể loại',
       dataIndex: ['genre', 'name'],
-      render: (_, record) => (
-        <Tag color="blue">
-          {record.genre?.name || 'Chưa phân loại'}
-        </Tag>
-      )
+      render: (_, record) => {
+        console.log('Rendering genre for record:', record); // Debug log
+        return (
+          <Tag color="blue">
+            {record.genre?.name || 'Chưa phân loại'}
+          </Tag>
+        );
+      }
     },
     {
       title: 'Thời lượng',
@@ -302,10 +319,13 @@ const SongManagement = () => {
           <Form.Item
             name="genre"
             label="Thể loại"
+            rules={[FORM_RULES.REQUIRED('thể loại')]}
           >
             <Select
               placeholder="Chọn thể loại"
               allowClear
+              showSearch
+              optionFilterProp="children"
             >
               {genres.map(genre => (
                 <Select.Option key={genre.id} value={genre.id}>

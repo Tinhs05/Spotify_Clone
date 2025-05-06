@@ -15,6 +15,7 @@ import { NotifySuccess, NotifyError, NotifyWarning } from "../../../components/T
 import { getPlaylistTracksAPI, createPlaylistTrackAPI, checkTrackInPlaylistAPI, deletePlaylistTrackAPI } from "../../../../services/PlaylistTrackAPI";
 import { getTracksAPI } from "../../../../services/TrackAPI";
 import { deletePlaylistAPI, getPlaylistByIdAPI, updatePlaylistAPI } from "../../../../services/PlaylistAPI";
+import axios from 'axios';
 
 function PlaylistPage() {
     const navigate = useNavigate();
@@ -154,6 +155,25 @@ function PlaylistPage() {
         const previewUrl = URL.createObjectURL(file);
         setImageUrl(previewUrl);
         setNameImagePlaylist(file.name);
+        return false;
+    };
+
+    const handleImageUpload = async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('object_type', 'playlist');
+            const res = await axios.post('http://localhost:8000/api/upload-to-s3/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const imageUrl = res.data.url;
+            await updatePlaylistAPI(playlist.id, playlist.user.id, playlist.name, imageUrl);
+            setPlaylist({...playlist, image_file_path: imageUrl});
+            NotifySuccess("Cập nhật ảnh playlist thành công");
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            NotifyError("Cập nhật ảnh playlist thất bại");
+        }
         return false;
     };
 

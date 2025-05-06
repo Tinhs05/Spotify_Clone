@@ -45,7 +45,7 @@ function VideoPage(props) {
                     videoList.length !== 0 ?
                     videoList.map((item, index) => {
                         return (
-                            <div className="video">
+                            <div className="video" key={item.id}>
                                 <Tooltip className="play-btn" placement="top" title={`Phát ${item.title}`}>
                                     <PlayCircleFilled 
                                         onClick={() => {

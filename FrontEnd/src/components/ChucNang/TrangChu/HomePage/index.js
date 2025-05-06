@@ -34,7 +34,7 @@ function HomePage() {
                 {
                     genres.length !== 0 ?
                     genres.map((item, index) => {
-                        return <div className="genre">
+                        return <div className="genre" key={item.id}>
                                     <div className="genre-title">
                                         <Link 
                                             to={`/genre/${item.id}`}
