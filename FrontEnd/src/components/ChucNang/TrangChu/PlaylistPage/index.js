@@ -5,8 +5,7 @@ import "./PlaylistPage.css";
 import { PlayCircleFilled, PlusCircleOutlined, CloseCircleOutlined,
     ClockCircleOutlined, CaretRightFilled, SearchOutlined,
     CloseOutlined, CheckCircleFilled, PlusOutlined,
-    LoadingOutlined, 
-
+    LoadingOutlined, EditOutlined
 } from '@ant-design/icons';
 import { Input, Tooltip, Popconfirm, Table, message, Flex, Upload, Modal, Button } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -31,6 +30,9 @@ function PlaylistPage() {
     const [findTrack, setFindTrack ] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState("");
     const [nameKeyword, setNameKeyword] = useState("");
+    const [editImageFile, setEditImageFile] = useState(null);
+    const [editImageUrl, setEditImageUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
 
     // Mock Data
     useEffect(() => {
@@ -76,6 +78,13 @@ function PlaylistPage() {
           setNameKeyword(playlist.name);
         }
       }, [editModal, playlist]);
+
+    useEffect(() => {
+        if (editModal) {
+            setEditImageFile(null);
+            setEditImageUrl("");
+        }
+    }, [editModal]);
 
 
 
@@ -142,8 +151,6 @@ function PlaylistPage() {
     };
 
 
-
-
     const handleImageUpload = async (file) => {
         try {
             const formData = new FormData();
@@ -165,17 +172,63 @@ function PlaylistPage() {
         return false;
     };
 
+    const handleEditImageChange = (file) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            message.error('Bạn chỉ có thể upload file JPG/PNG!');
+            return false;
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('Ảnh phải nhỏ hơn 2MB!');
+            return false;
+        }
+        setEditImageFile(file);
+        setEditImageUrl(URL.createObjectURL(file));
+        return false;
+    };
+
+    const handleSaveEditPlaylist = async () => {
+        setIsUploading(true);
+        let imageUrlToUpdate = playlist.image_file_path;
+        if (editImageFile) {
+            try {
+                const formData = new FormData();
+                formData.append('file', editImageFile);
+                formData.append('object_type', 'playlist');
+                const res = await axios.post('http://localhost:8000/api/upload-to-s3/', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                imageUrlToUpdate = res.data.url;
+            } catch (error) {
+                NotifyError('Cập nhật ảnh playlist thất bại');
+                setIsUploading(false);
+                return;
+            }
+        }
+        const dataUpdatePlaylist = await updatePlaylistAPI(idPlaylist, user.id, nameKeyword, imageUrlToUpdate || null);
+        if (dataUpdatePlaylist.success) {
+            const dataPlaylist = await getPlaylistByIdAPI(idPlaylist);
+            setPlaylist(dataPlaylist.playlist);
+            setEditModal(false);
+            setImageUrl("");
+            setEditImageFile(null);
+            setEditImageUrl("");
+            NotifySuccess('Cập nhật playlist thành công');
+            window.location.href = `/playlist/${idPlaylist}`;
+        } else {
+            NotifyError('Cập nhật playlist thất bại');
+        }
+        setIsUploading(false);
+    };
+
 
     return (
         <div className="PlaylistPage">
             <div className="playlist_header">
-                <div 
-                    className="playlist-img"
-                    onClick={() => setEditModal(true)}
-                >
+                <div className="playlist-img" onClick={() => setEditModal(true)} style={{ cursor: 'pointer' }}>
                     <img 
-                        src={playlist.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`} 
-                        
+                        src={playlist.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`}      
                         style={{
                             width: '100%',
                             height: '100%',
@@ -183,14 +236,15 @@ function PlaylistPage() {
                             borderRadius: '5px'
                         }}
                     />
+                    <div className="upload-overlay">
+                        <EditOutlined style={{ color: 'white', fontSize: 28, marginBottom: 8 }} />
+                        <span>Chỉnh sửa ảnh</span>
+                    </div>
                 </div>
                 
                 <div className="playlist-info">
                     <span className="type">Playlist</span>
-                    <span 
-                        className="name"
-                        onClick={() => setEditModal(true)}
-                    >
+                    <span className="name">
                         {playlist?.name || ""}
                     </span>
                     <span className="sub-info">
@@ -501,7 +555,7 @@ function PlaylistPage() {
                     <Button 
                         key="submit" 
                         type="primary" 
-                        onClick={handleUpdatePlaylist}
+                        onClick={handleSaveEditPlaylist}
                         style={{
                             backgroundColor: 'white',
                             color: '#000',
@@ -510,11 +564,12 @@ function PlaylistPage() {
                             padding: '25px 30px',
                             borderRadius: '35px'
                         }}
+                        loading={isUploading}
+                        disabled={isUploading}
                     >
                         Lưu
                     </Button>,
                 ]}
-                
             >
                 <div style={{ display: 'flex', justifyContent: 'space-between'}}>
                     <Upload 
@@ -542,12 +597,10 @@ function PlaylistPage() {
                         }
                     </Upload>
                     <Input
-                        
                         value={nameKeyword}
                         onChange={(e) => 
                             setNameKeyword(e.target.value)
                         }
-                        
                         style={{
                             background: '#383838',
                             border: '1px solid transparent',

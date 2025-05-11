@@ -14,7 +14,13 @@ export function TrackProvider({ children }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [user, setUser] = useState(() => {
         const saved = localStorage.getItem("user");
-        return saved ? JSON.parse(saved) : {};
+        try {
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && parsed.id) return parsed;
+            }
+        } catch (e) {}
+        return null;
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,8 +33,10 @@ export function TrackProvider({ children }) {
     }, [trackInfo]);
 
     useEffect(() => {
-        if (user) {
+        if (user && user.id) {
             localStorage.setItem("user", JSON.stringify(user));
+        } else {
+            localStorage.removeItem("user");
         }
     }, [user]);
 

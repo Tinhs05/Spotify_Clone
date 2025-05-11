@@ -3,9 +3,11 @@ import { NotifyError, NotifyWarning } from "../../components/Toast";
 import "./DangNhap.css";
 import { loginAPI } from "../../../services/UserAPI";
 import { useNavigate } from "react-router-dom";
+import { useTrack } from "../../Layouts/contexts/TrackProvider";
 
 function DangNhap() {
     const navigate = useNavigate();
+    const { setUser } = useTrack();
 
     const login = async() => {
         const tenDangNhapE = document.getElementById('tendangnhap')
@@ -20,6 +22,7 @@ function DangNhap() {
                 if(data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
                     localStorage.setItem('token', data.access);
+                    setUser(data.user);
                     
                     // Chuyển hướng dựa vào role
                     if(data.user.role === 0) {

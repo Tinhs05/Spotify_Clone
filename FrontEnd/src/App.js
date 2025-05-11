@@ -1,120 +1,148 @@
-import { Fragment } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Fragment, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 import { DefaultLayout } from "./components/Layouts";
 import { adminRoutes, clientRoutes, publicRoutes } from "./routers";
 import { TrackProvider, useTrack } from "../src/components/Layouts/contexts/TrackProvider";
 
-function App() {
-  
-  const user = JSON.parse(localStorage.getItem('user')) || {};
+function AppWrapper() {
+  const user = (() => {
+    try {
+      const u = JSON.parse(localStorage.getItem('user'));
+      if (u && u.id) return u;
+    } catch (e) {}
+    return null;
+  })();
 
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  if (Object.keys(user).length === 0) 
-  {
+  useEffect(() => {
+    if (user && (location.pathname === '/' || location.pathname === '')) {
+      if (user.role === 0) {
+        navigate('/home', { replace: true });
+      } else if (user.role === 1) {
+        navigate('/admin/dashboard', { replace: true });
+      }
+    }
+  }, [user, location, navigate]);
+
+  if (!user) {
     return (
-      <Router>
-        <div className="App">
-          <Routes>
-            {
-              publicRoutes.map((route, index) => {
-                const Page = route.component;
-                let Layout = DefaultLayout;
-                if (route.layout) 
-                {
-                  Layout = route.layout;
-                }
-                else if (route.layout === null) 
-                {
-                  Layout = Fragment;
-                }
-
-                return (
-                  <Route
-                    key={index}
-                    path={route.path}
-                    element={
-                      <Layout>
-                        <Page />
-                      </Layout>
-                    }
-                  />
-                )
-              })
+      <div className="App">
+        <Routes>
+          <Route path="/*" element={(() => {
+            const Page = publicRoutes[0].component;
+            let Layout = DefaultLayout;
+            if (publicRoutes[0].layout) {
+              Layout = publicRoutes[0].layout;
+            } else if (publicRoutes[0].layout === null) {
+              Layout = Fragment;
             }
-          </Routes>
-        </div>
-      </Router>
+            return (
+              <Layout>
+                <Page />
+              </Layout>
+            );
+          })()} />
+          {publicRoutes.map((route, index) => {
+            const Page = route.component;
+            let Layout = DefaultLayout;
+            if (route.layout) 
+            {
+              Layout = route.layout;
+            }
+            else if (route.layout === null) 
+            {
+              Layout = Fragment;
+            }
+
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                }
+              />
+            )
+          })}
+        </Routes>
+      </div>
     )
   }
   else if (user.role === 0) {
     return (
-      <Router>
-        <div className="App">
-          <Routes>
-            {
-              clientRoutes.map((route, index) => {
-                const Page = route.component;
-                let Layout = DefaultLayout;
-                if (route.layout) {
-                  Layout = route.layout;
-                }
-                else if (route.layout === null) {
-                  Layout = Fragment;
-                }
+      <div className="App">
+        <Routes>
+          {
+            clientRoutes.map((route, index) => {
+              const Page = route.component;
+              let Layout = DefaultLayout;
+              if (route.layout) {
+                Layout = route.layout;
+              }
+              else if (route.layout === null) {
+                Layout = Fragment;
+              }
 
-                return (
-                  <Route
-                    key={index}
-                    path={route.path}
-                    element={
-                      <Layout>
-                        <Page />
-                      </Layout>
-                    }
-                  />
-                )
-              })
-            }
-          </Routes>
-        </div>
-      </Router>
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  }
+                />
+              )
+            })
+          }
+        </Routes>
+      </div>
     )
   }
   else if (user.role === 1) {
     return (
-      <Router>
-        <div className="App">
-          <Routes>
-            {
-              adminRoutes.map((route, index) => {
-                const Page = route.component;
-                let Layout = DefaultLayout;
-                if (route.layout) {
-                  Layout = route.layout;
-                }
-                else if (route.layout === null) {
-                  Layout = Fragment;
-                }
+      <div className="App">
+        <Routes>
+          {
+            adminRoutes.map((route, index) => {
+              const Page = route.component;
+              let Layout = DefaultLayout;
+              if (route.layout) {
+                Layout = route.layout;
+              }
+              else if (route.layout === null) {
+                Layout = Fragment;
+              }
 
-                return (
-                  <Route
-                    key={index}
-                    path={route.path}
-                    element={
-                      <Layout>
-                        <Page />
-                      </Layout>
-                    }
-                  />
-                )
-              })
-            }
-          </Routes>
-        </div>
-      </Router>
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  }
+                />
+              )
+            })
+          }
+        </Routes>
+      </div>
     )
   }
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <AppWrapper />
+    </Router>
+  );
+}

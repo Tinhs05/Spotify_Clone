@@ -45,11 +45,7 @@ const AdminLayout = ({ children }) => {
       icon: <PlayCircleOutlined />,
       label: <Link to="/admin/songs">Songs</Link>,
     },
-    {
-      key: '/admin/playlists',
-      icon: <PlaySquareOutlined />,
-      label: <Link to="/admin/playlists">Playlists</Link>,
-    },
+
     {
       key: '/admin/users',
       icon: <UserOutlined />,
