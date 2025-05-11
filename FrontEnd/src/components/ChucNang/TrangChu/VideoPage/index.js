@@ -61,7 +61,9 @@ function VideoPage(props) {
                                 </Tooltip>
                                 <div className="image">
                                     <img 
-                                        src={`${process.env.PUBLIC_URL}/assets/images/${item.img_file_path ? item.img_file_path : 'default_music.png'}`}  
+                                        src={item.image_file_path && item.image_file_path.startsWith('http')
+                                            ? item.image_file_path
+                                            : `${process.env.PUBLIC_URL}/assets/images/default_music.png`} 
                                         style={{
                                             width: '100%',
                                             height: '100%',

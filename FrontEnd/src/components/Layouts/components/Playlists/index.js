@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PlusOutlined, ReadFilled, SearchOutlined, HeartFilled, PushpinFilled } from '@ant-design/icons';
 import { Tooltip, Input } from "antd";
-import { createPlaylistAPI, getPlaylistsAPI } from "../../../../services/PlaylistAPI";
+import { createPlaylistAPI, getPlaylistsByUserAPI } from "../../../../services/PlaylistAPI";
 import { NotifyError, NotifySuccess, NotifyWarning } from "../../../components/Toast";
 import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
 
@@ -23,7 +23,7 @@ function Playlists() {
 
     useEffect(() => {
         ( async () => {
-            const dataPlaylists = await getPlaylistsAPI();
+            const dataPlaylists = await getPlaylistsByUserAPI(user.id);
             const dataFavorite = await getFavoriteByIdUserAPI(user.id);
             setPlaylists(dataPlaylists.playlists || []);
             setFavorite(dataFavorite.favorite || null);
@@ -52,7 +52,7 @@ function Playlists() {
         const dataCreatePlaylist = await createPlaylistAPI(user.id, null)
         if(dataCreatePlaylist.success)
         {
-            const dataPlaylists = await getPlaylistsAPI();
+            const dataPlaylists = await getPlaylistsByUserAPI(user.id);
             setPlaylists(dataPlaylists.playlists);
             NotifySuccess("Tạo playlist thành công");
             navigate(`/playlist/${dataCreatePlaylist.playlist.id}`);

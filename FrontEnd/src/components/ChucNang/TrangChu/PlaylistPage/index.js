@@ -21,8 +21,8 @@ function PlaylistPage() {
     const navigate = useNavigate();
     const { idPlaylist } = useParams();
     const { trackInfo, setTrackInfo, isPlaying, setIsPlaying, user, isModalOpen, setIsModalOpen} = useTrack();
-    const [imageUrl, setImageUrl] = useState();
-    const [nameImagePlaylist, setNameImagePlaylist] = useState("");
+    const [imageUrl, setImageUrl] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [editModal, setEditModal] = useState(false);
     const [playlist, setPlaylist ] = useState({});
     const [playlistSongs, setPlaylistSongs ] = useState([]);
@@ -40,7 +40,6 @@ function PlaylistPage() {
             const dataTracks = await getTracksAPI();
 
             setPlaylist(dataPlaylist.playlist);
-            setNameImagePlaylist(dataPlaylist.playlist.image_file_path);
             setTracks(dataTracks.tracks);
             if(dataPlaylistTracks.playlist_tracks)
             {
@@ -102,7 +101,7 @@ function PlaylistPage() {
     }
 
     const handleUpdatePlaylist = async () => {
-        const dataUpdatePlaylist = await updatePlaylistAPI(idPlaylist, user.id, nameKeyword, nameImagePlaylist || null);
+        const dataUpdatePlaylist = await updatePlaylistAPI(idPlaylist, user.id, nameKeyword, imageUrl || null);
         if(dataUpdatePlaylist.success)
         {
             const dataPlaylist = await getPlaylistByIdAPI(idPlaylist);
@@ -118,7 +117,6 @@ function PlaylistPage() {
 
     
 
-    
 
     const removePlaylist = async (idPlaylist) => {
         const dataDeletePlaylist = await deletePlaylistAPI(idPlaylist);
@@ -133,8 +131,6 @@ function PlaylistPage() {
     }
 
 
-
-
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
@@ -146,30 +142,22 @@ function PlaylistPage() {
     };
 
 
-    const beforeUpload = (file) => {
-        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng) {
-            message.error('You can only upload JPG/PNG file!');
-            return Upload.LIST_IGNORE;
-        }
-        const previewUrl = URL.createObjectURL(file);
-        setImageUrl(previewUrl);
-        setNameImagePlaylist(file.name);
-        return false;
-    };
+
 
     const handleImageUpload = async (file) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('object_type', 'playlist');
+            setLoading(true);
             const res = await axios.post('http://localhost:8000/api/upload-to-s3/', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const imageUrl = res.data.url;
-            await updatePlaylistAPI(playlist.id, playlist.user.id, playlist.name, imageUrl);
-            setPlaylist({...playlist, image_file_path: imageUrl});
-            NotifySuccess("Cập nhật ảnh playlist thành công");
+            if(res.data.url)
+            {
+                setImageUrl(res.data.url);
+                setLoading(false);
+            }
         } catch (error) {
             console.error('Error uploading image:', error);
             NotifyError("Cập nhật ảnh playlist thất bại");
@@ -186,7 +174,7 @@ function PlaylistPage() {
                     onClick={() => setEditModal(true)}
                 >
                     <img 
-                        src={`${process.env.PUBLIC_URL}/assets/images/${playlist.image_file_path ? playlist.image_file_path : 'default_music.png'}`} 
+                        src={playlist.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`} 
                         
                         style={{
                             width: '100%',
@@ -303,7 +291,7 @@ function PlaylistPage() {
                                                 <div className="track">
                                                     <div className="image">
                                                         <img 
-                                                            src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`} 
+                                                            src={item.image_file_path ? item.image_file_path : `${process.env.PUBLIC_URL}/assets/images/default_music.png`}  
                                                             style={{
                                                                 width: '100%',
                                                                 height: '100%',
@@ -406,7 +394,7 @@ function PlaylistPage() {
                                                             <div className="track">
                                                                 <div className="image">
                                                                     <img 
-                                                                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_file_path ? item.image_file_path : 'default_music.png'}`}  
+                                                                        src={item.image_file_path ? item.image_file_path : `${process.env.PUBLIC_URL}/assets/images/default_music.png`}  
                                                                         style={{
                                                                             width: '100%',
                                                                             height: '100%',
@@ -531,18 +519,27 @@ function PlaylistPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between'}}>
                     <Upload 
                         className="imgEdit"
-                        beforeUpload={beforeUpload}
+                        beforeUpload={handleImageUpload}
                         showUploadList={false}
-                    >
-                        <img 
-                            src={imageUrl ? imageUrl : `${process.env.PUBLIC_URL}/assets/images/${playlist?.image_file_path || 'default_music.png'}`}  
-                            style={{ 
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: '5px'
-                            }} 
-                        />       
+                        loading={loading}
+                    >     
+                        {
+                            loading ? (
+                                <div style={{ textAlign: "center", padding: "40px 0" }}>
+                                    <LoadingOutlined style={{ fontSize: 40, color: "white" }} spin />
+                                </div>
+                            ) : (
+                                <img 
+                                    src={imageUrl ? imageUrl : playlist?.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`}  
+                                    style={{ 
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        borderRadius: '5px'
+                                    }} 
+                                />
+                            )
+                        }
                     </Upload>
                     <Input
                         

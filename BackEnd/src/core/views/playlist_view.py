@@ -13,9 +13,9 @@ class PlaylistViewSet(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
     
-    @action(detail=False, methods=['get'])
-    def get_playlists(self, request):
-        playlists = Playlist.objects.all()
+    @action(detail=True, methods=['get'])
+    def get_playlists_by_user(self, request, pk=None):
+        playlists = Playlist.objects.filter(user_id=pk)
         serializer = PlaylistSerializer(playlists, many=True)
         if serializer.data:
             return Response({
