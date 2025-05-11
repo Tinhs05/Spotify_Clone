@@ -43,7 +43,7 @@ function ModalVideo(props) {
             <div className="video-container">
                 {
                     
-                    video !== null && (
+                    video && video.video_file_path && (
                         <ReactPlayer 
                             url={video.video_file_path}
                             playing 

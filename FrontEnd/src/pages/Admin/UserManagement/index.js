@@ -93,9 +93,11 @@ const UserManagement = () => {
         userData.password = values.password;
         userData.confirm_password = values.confirmPassword;
         const response = await adminService.createUser(userData);
-        if (response.success) {
+        console.log(">>> id: ", response)
+        if (response.data.success) {
           // Create favorite playlist for new user
-          await createFavoriteAPI(response.user.id);
+          
+          await createFavoriteAPI(response.data.user.id);
           message.success(MESSAGES.SUCCESS.CREATE_USER);
         }
       }

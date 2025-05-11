@@ -46,7 +46,7 @@ const adminService = {
 
   // User Management
   getUsers: () => adminAxios.get('/users/'),
-  createUser: (data) => adminAxios.post('/users/', data),
+  createUser: (data) => adminAxios.post('/users/register/', data),
   updateUser: (id, data) => adminAxios.put(`/users/${id}/`, data),
   deleteUser: (id) => adminAxios.delete(`/users/${id}/`),
   resetUserPassword: (id, data) => adminAxios.post(`/users/${id}/reset_password/`, data),

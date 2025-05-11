@@ -2,9 +2,9 @@ import axios from 'axios';
 import { api } from './config';
 
 // Lấy danh sách playlist
-export const getPlaylistsAPI = async () => {
+export const getPlaylistsByUserAPI = async (user_id) => {
     try {
-        const response = await axios.get(`${api}/api/playlists/get_playlists/`);
+        const response = await axios.get(`${api}/api/playlists/${user_id}/get_playlists_by_user/`);
         return response.data;
     } catch (error) {
         throw error;

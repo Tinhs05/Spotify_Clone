@@ -85,7 +85,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
-        'PORT': '3307',
+        'PORT': '3306',
     }
 }
 
@@ -151,6 +151,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # AWS S3 Configuration
+
 AWS_ACCESS_KEY_ID = '' 
 AWS_SECRET_ACCESS_KEY = '' 
 AWS_STORAGE_BUCKET_NAME = 'musicapp-media-bucket'
