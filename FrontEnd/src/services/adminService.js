@@ -44,12 +44,6 @@ const adminService = {
   updateSong: (id, data) => adminAxios.put(`/tracks/${id}/`, data),
   deleteSong: (id) => adminAxios.delete(`/tracks/${id}/`),
 
-  // Playlist Management
-  getPlaylists: () => adminAxios.get('/playlists/'),
-  createPlaylist: (data) => adminAxios.post('/playlists/', data),
-  updatePlaylist: (id, data) => adminAxios.put(`/playlists/${id}/`, data),
-  deletePlaylist: (id) => adminAxios.delete(`/playlists/${id}/`),
-
   // User Management
   getUsers: () => adminAxios.get('/users/'),
   createUser: (data) => adminAxios.post('/users/', data),

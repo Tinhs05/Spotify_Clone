@@ -14,10 +14,23 @@ export const getTracksAPI = async () => {
 // Lấy track theo id
 export const getTrackByIdAPI = async (idTrack) => {
     try {
+        if (!idTrack) {
+            throw new Error('Track ID is required');
+        }
         const response = await axios.get(`${api}/api/tracks/${idTrack}/get_track_by_id/`);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            throw new Error(error.response.data.error || 'Failed to get track');
+        } else if (error.request) {
+            // The request was made but no response was received
+            throw new Error('No response from server');
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            throw new Error(error.message);
+        }
     }
 };
 

@@ -35,27 +35,28 @@ class TrackViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'])
     def get_track_by_id(self, request, pk=None):
-        track = self.get_object()
-        serializer = TrackSerializer(track)
-        if serializer.data:
+        try:
+            track = Track.objects.get(pk=pk)
+            serializer = TrackSerializer(track)
             return Response({
                 'track': serializer.data,
             }, status=status.HTTP_200_OK)
-        return Response({
-            'error': 'Get track is failed'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        except Track.DoesNotExist:
+            return Response({
+                'error': 'Track not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def get_video_list(self, request):
         videoList = Track.objects.filter(Q(video_file_path__isnull=False) & ~Q(video_file_path=''))
         serializer = TrackSerializer(videoList, many=True)
-        if serializer.data:
-            return Response({
-                'videoList': serializer.data,
-            }, status=status.HTTP_200_OK)
         return Response({
-            'error': 'Get videoList is failed'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            'videoList': serializer.data,
+        }, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['get'])
     def get_video_by_id(self, request, pk=None):

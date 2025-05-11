@@ -16,18 +16,19 @@ function VideoList() {
     // Mock database
     useEffect(() => {
         ( async () => { 
-            const dataVideoList =  await getVideoListAPI();
-            if(dataVideoList.videoList)
-            {
-                setVideoList(dataVideoList.videoList);
-                    
-            }
-            else
-            {
-                console.log(dataVideoList.error);
+            try {
+                const dataVideoList = await getVideoListAPI();
+                setVideoList(dataVideoList.videoList || []);
+            } catch (error) {
+                console.error('Error fetching video list:', error);
+                setVideoList([]);
             }
         })();
     }, []);
+
+    const handleClickVideo = (idVideo) => {
+        setChucNang(<ModalVideo idVideo={idVideo} setChucNang={setChucNang} />);
+    };
 
     return (
         <div className="video-list">
@@ -35,37 +36,28 @@ function VideoList() {
                 videoList.length !== 0 ?
                 videoList.map((item, index) => {
                     return (
-                        <div className="video" key={item.id}>
-                            <Tooltip className="play-btn" placement="top" title={`Phát ${item.title}`}>
-                                <PlayCircleFilled 
-                                    onClick={() => {
-                                        if (item.is_premium === 1 && user.is_premium === 0) 
-                                        {
-                                            setIsModalOpen(true)
-                                        } 
-                                        else 
-                                        {
-                                            
-                                            setChucNang(
-                                                <ModalVideo
-                                                    modalVisible={true}
-                                                    setChucNang={setChucNang}
-                                                    idVideo={item.id}
-                                                />
-                                            );
-                                        }
-                                        
-                                    }}
-                                />
-                            </Tooltip>
+                        <div 
+                            key={index} 
+                            className="video-item"
+                            onClick={() => handleClickVideo(item.id)}
+                        >
                             <div className="image">
-                                <img 
-                                    src={item.image_file_path && item.image_file_path.startsWith('http')
-                                        ? item.image_file_path
-                                        : `${process.env.PUBLIC_URL}/assets/images/default_music.png`}
-                                    alt={item.title}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 5, transition: 'transform 0.5s ease' }}
-                                />
+                                <div className="video-thumbnail">
+                                    <img 
+                                        src={item.image_file_path || `${process.env.PUBLIC_URL}/assets/images/default_music.png`}
+                                        alt={item.title}
+                                        style={{ 
+                                            width: '100%', 
+                                            height: '100%', 
+                                            objectFit: 'cover', 
+                                            borderRadius: 5,
+                                            transition: 'transform 0.5s ease'
+                                        }}
+                                    />
+                                    <div className="play-icon">
+                                        <i className="fas fa-play"></i>
+                                    </div>
+                                </div>
                             </div>
                             <div className="title">
                                 <span 

@@ -46,7 +46,7 @@ function ModalVideo(props) {
                     
                     video !== null && (
                         <ReactPlayer 
-                            url={`${process.env.PUBLIC_URL}/assets/video/${video.video_file_path}`} 
+                            url={video.video_file_path}
                             playing 
                             controls 
                             width="100%" 

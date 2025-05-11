@@ -15,15 +15,12 @@ function VideoPage(props) {
     // Mock database
     useEffect(() => {
         ( async () => { 
-            const dataVideoList =  await getVideoListAPI();
-            if(dataVideoList.videoList)
-            {
-                setVideoList(dataVideoList.videoList);
-                    
-            }
-            else
-            {
-                console.log(dataVideoList.error);
+            try {
+                const dataVideoList = await getVideoListAPI();
+                setVideoList(dataVideoList.videoList || []);
+            } catch (error) {
+                console.error('Error fetching video list:', error);
+                setVideoList([]);
             }
         })();
     }, []);

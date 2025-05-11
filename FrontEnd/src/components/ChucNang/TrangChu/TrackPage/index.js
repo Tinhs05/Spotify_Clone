@@ -2,10 +2,7 @@ import { useTrack } from "../../../Layouts/contexts/TrackProvider";
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import "./TrackPage.css";
-import { PlayCircleFilled, CloseCircleOutlined,
-    ClockCircleOutlined, CaretRightFilled, PlusCircleOutlined
-    ,CheckCircleFilled 
-} from '@ant-design/icons';
+import { PlayCircleFilled, CloseCircleOutlined, ClockCircleOutlined, CaretRightFilled, PlusCircleOutlined, CheckCircleFilled } from '@ant-design/icons';
 import { Tooltip, Popconfirm, message } from "antd";
 import { getTrackByIdAPI } from "../../../../services/TrackAPI";
 import { getFavoriteTracksAPI, createFavoriteTrackAPI } from "../../../../services/FavoriteTrackAPI";
@@ -13,36 +10,65 @@ import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
 import { NotifyWarning, NotifyError } from "../../../components/Toast";
 
 function TrackPage() {
-    const [track, setTrack ] = useState([]);
+    const [track, setTrack] = useState(null);
     const [isInFavorite, setIsInFavorite] = useState(false);
+    const [loading, setLoading] = useState(true);
     const { setTrackInfo, setIsPlaying, user, isModalOpen, setIsModalOpen } = useTrack();
     const { idTrack } = useParams();
 
-    // Mock Data
-
+    // Fetch track data
     useEffect(() => {
-        ( async () => {
-            const dataTrack = await getTrackByIdAPI(idTrack);
-            if(dataTrack.track)
-            {
-                setTrack(dataTrack.track);
-            }
-            else
-            {
-                console.log(dataTrack.error);
-            }
-        })();
-    }, []);
+        let isMounted = true;
 
+        const fetchTrack = async () => {
+            try {
+                setLoading(true);
+                const dataTrack = await getTrackByIdAPI(idTrack);
+                if (isMounted) {
+                    if (dataTrack.track) {
+                        setTrack(dataTrack.track);
+                    } else {
+                        NotifyError('Bài hát không tồn tại hoặc đã bị xóa');
+                        window.history.back();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching track:', error);
+                if (isMounted) {
+                    if (error.response && error.response.status === 404) {
+                        NotifyError('Bài hát không tồn tại hoặc đã bị xóa');
+                    } else {
+                        NotifyError('Không thể tải thông tin bài hát');
+                    }
+                    window.history.back();
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchTrack();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [idTrack]);
+
+    // Check if track is in favorite
     useEffect(() => {
         const checkFavorite = async () => {
-            if (track) {
+            if (!track || !user || !user.id) return; // Kiểm tra điều kiện trong useEffect
+            try {
                 const result = await checkTrackInFavorite(track.id);
                 setIsInFavorite(result);
+            } catch (error) {
+                console.error('Error checking favorite:', error);
             }
         };
         checkFavorite();
-    }, [track]);
+    }, [track, user]); // Thêm user vào dependency array để xử lý thay đổi user
 
     const addIntoFavorite = async (idTrack) => {
         if (!user || !user.id) {
@@ -58,7 +84,7 @@ function TrackPage() {
             }
 
             const dataCreateFavoriteTrack = await createFavoriteTrackAPI(dataFavorite.favorite.id, idTrack);
-            if(dataCreateFavoriteTrack.success) {
+            if (dataCreateFavoriteTrack.success) {
                 setIsInFavorite(true);
                 message.success('Đã thêm bài hát vào favorite thành công!');
             }
@@ -66,17 +92,17 @@ function TrackPage() {
             console.error('Error adding to favorite:', error);
             NotifyError("Thêm bài hát vào yêu thích thất bại");
         }
-    }
-    
+    };
+
     const checkTrackInFavorite = async (idTrack) => {
         if (!user || !user.id) return false;
-        
+
         try {
             const dataFavorite = await getFavoriteByIdUserAPI(user.id);
             if (!dataFavorite || !dataFavorite.favorite) return false;
 
             const favoriteSongs = await getFavoriteTracksAPI(dataFavorite.favorite.id);
-            if(favoriteSongs.favorite_tracks) {
+            if (favoriteSongs.favorite_tracks) {
                 return favoriteSongs.favorite_tracks.some(song => song && song.id === idTrack);
             }
             return false;
@@ -86,14 +112,32 @@ function TrackPage() {
         }
     };
 
-
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, "0")}`
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
+    // Render loading state
+    if (loading) {
+        return (
+            <div className="TrackPage" style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                height: '100vh'
+            }}>
+                <div>Đang tải...</div>
+            </div>
+        );
+    }
 
+    // Render when track is not found
+    if (!track) {
+        return null;
+    }
+
+    // Render track details
     return (
         <div className="TrackPage">
             <div className="track_header">
@@ -130,9 +174,9 @@ function TrackPage() {
                     }
                     <span className="sub-info">
                         <a className="user">{track?.artist || ""}</a> 
-                        &nbsp;
-                        &#8226; 
-                        &nbsp;
+                         
+                        • 
+                         
                         <span>1 Bài hát, {formatTime(track?.duration) || ""}</span>
                     </span>
                 </div>
@@ -146,7 +190,7 @@ function TrackPage() {
                                 e.stopPropagation();
                                 if (track.is_premium === 1 && user.is_premium === 0) 
                                 {
-                                    setIsModalOpen(true)
+                                    setIsModalOpen(true);
                                 } 
                                 else 
                                 {
@@ -156,7 +200,6 @@ function TrackPage() {
                                     });
                                     setIsPlaying(true);
                                 }
-
                             }}
                         />
                     </Tooltip>
@@ -172,7 +215,6 @@ function TrackPage() {
                                 className="add-into-playlist" 
                                 placement="top" 
                                 title={"Đã thêm vào danh sách này"}
-                                                                                                        
                             >
                                 <CheckCircleFilled 
                                     style={{
@@ -201,13 +243,10 @@ function TrackPage() {
                         <span>Nghệ sĩ</span>
                         <span className="name">{track?.artist || ""}</span>
                     </div>
-
-
                 </div>
             </div>
-
         </div>
-    )
+    );
 }
 
 export default TrackPage;

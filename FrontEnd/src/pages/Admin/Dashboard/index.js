@@ -7,12 +7,10 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     total_users: 0,
     total_songs: 0,
-    total_playlists: 0,
     premium_users: 0
   });
   const [users, setUsers] = useState([]);
   const [songs, setSongs] = useState([]);
-  const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -26,11 +24,6 @@ const Dashboard = () => {
         const songsRes = await adminService.getSongs();
         const songsData = songsRes.data || [];
         setSongs(Array.isArray(songsData) ? songsData : []);
-        
-        // Lấy danh sách playlist
-        const playlistsRes = await adminService.getPlaylists();
-        const playlistsData = playlistsRes.data || [];
-        setPlaylists(Array.isArray(playlistsData) ? playlistsData : []);
 
         // Tính toán thống kê
         const premiumUsers = usersData.filter(user => user.is_premium).length;
@@ -38,7 +31,6 @@ const Dashboard = () => {
         setStats({
           total_users: usersData.length,
           total_songs: songsData.length,
-          total_playlists: playlistsData.length,
           premium_users: premiumUsers
         });
 
@@ -47,16 +39,13 @@ const Dashboard = () => {
         // Set empty arrays in case of error
         setUsers([]);
         setSongs([]);
-        setPlaylists([]);
         setStats({
           total_users: 0,
           total_songs: 0,
-          total_playlists: 0,
           premium_users: 0
         });
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchDashboardData();
@@ -74,11 +63,6 @@ const Dashboard = () => {
     { title: 'Album', dataIndex: 'album' }
   ];
 
-  const playlistColumns = [
-    { title: 'Tên playlist', dataIndex: 'name' },
-    { title: 'Mô tả', dataIndex: 'description' }
-  ];
-
   if (loading) {
     return <Spin size="large" />;
   }
@@ -86,22 +70,17 @@ const Dashboard = () => {
   return (
     <div>
       <Row gutter={16}>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic title="Tổng số người dùng" value={stats.total_users} />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic title="Tổng số bài hát" value={stats.total_songs} />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Tổng số playlist" value={stats.total_playlists} />
-          </Card>
-        </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic title="Người dùng premium" value={stats.premium_users} />
           </Card>
@@ -109,7 +88,7 @@ const Dashboard = () => {
       </Row>
 
       <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={8}>
+        <Col span={12}>
           <Card title="Người dùng mới nhất">
             <Table 
               dataSource={users.slice(0, 5)} 
@@ -119,21 +98,11 @@ const Dashboard = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={12}>
           <Card title="Bài hát mới nhất">
             <Table 
               dataSource={songs.slice(0, 5)} 
               columns={songColumns} 
-              rowKey="id"
-              pagination={false}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card title="Playlist mới nhất">
-            <Table 
-              dataSource={playlists.slice(0, 5)} 
-              columns={playlistColumns} 
               rowKey="id"
               pagination={false}
             />

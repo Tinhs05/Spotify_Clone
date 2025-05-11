@@ -4,7 +4,8 @@ import "./MediaControls.css";
 import { PlusCircleOutlined, StepBackwardOutlined, 
         StepForwardOutlined, PlayCircleFilled,
         SoundOutlined, PauseCircleFilled,
-        CheckCircleFilled
+        CheckCircleFilled,
+        VideoCameraOutlined
 } from '@ant-design/icons';
 import { Tooltip, Input, Slider, message } from "antd";
 import { getTrackByIdAPI } from "../../../../services/TrackAPI";
@@ -12,6 +13,7 @@ import { getPlaylistTracksAPI } from "../../../../services/PlaylistTrackAPI";
 import { getFavoriteTracksAPI, createFavoriteTrackAPI } from "../../../../services/FavoriteTrackAPI";
 import { getFavoriteByIdUserAPI } from "../../../../services/FavoriteAPI";
 import { NotifyWarning, NotifyError } from "../../../components/Toast";
+import ReactPlayer from 'react-player';
 
 
 
@@ -22,9 +24,11 @@ function MediaControls() {
     const [currentTrack, setCurrentTrack] = useState(null);
     const [listSongs, setListSongs ] = useState([]);
     const [isInFavorite, setIsInFavorite] = useState(false);
+    const [showVideo, setShowVideo] = useState(false);
     const { trackInfo, setTrackInfo, user, isPlaying, setIsPlaying } = useTrack();
 
     const audioRef = useRef(null);
+    const videoRef = useRef(null);
 
     // Mock Data
     useEffect(() => {
@@ -90,6 +94,21 @@ function MediaControls() {
         }
     }, [currentVolume]);
 
+    useEffect(() => {
+        if (videoRef.current) {
+            if (!isPlaying) {
+                videoRef.current.pause();
+            } else {
+                videoRef.current.play();
+            }
+        }
+    }, [isPlaying]);
+
+    useEffect(() => {
+        if (videoRef.current && currentTrack) {
+            videoRef.current.load();
+        }
+    }, [currentTrack]);
 
     const handleSwitchPrev = () => {
         if(trackInfo.type === "track")
@@ -286,7 +305,36 @@ function MediaControls() {
         }
     };
 
+    const handleVideoPlayPause = () => {
+        if (videoRef.current) {
+            if (isPlaying) {
+                videoRef.current.pause();
+            } else {
+                videoRef.current.play();
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
 
+    const handleVideoTimeUpdate = () => {
+        if (videoRef.current) {
+            setCurrentTime(videoRef.current.getCurrentTime());
+        }
+    };
+
+    const handleVideoSliderChange = (value) => {
+        if (videoRef.current) {
+            videoRef.current.seekTo(value);
+            setCurrentTime(value);
+        }
+    };
+
+    const handleEnded = () => {
+        if (videoRef.current) {
+            videoRef.current.seekTo(0);
+            setIsPlaying(false);
+        }
+    };
 
     return (
         <div className="MediaControls">
@@ -318,28 +366,25 @@ function MediaControls() {
                                 {currentTrack.artist}
                             </span>
                         </div>
-                        {
-                            (!isInFavorite ?
-                                <Tooltip className="add-into-playlist" placement="top" title={"Lưu vào thư viện"}>
-                                    <PlusCircleOutlined 
-                                        onClick={() => addIntoFavorite(currentTrack.id)}
-                                    />
-                                </Tooltip>
-                                :
-                                <Tooltip 
-                                    className="find-tracks-add-btn" 
-                                    placement="top" 
-                                    title={"Đã thêm vào danh sách này"}
-                                                                                                        
-                                >
-                                    <CheckCircleFilled 
-                                        style={{
-                                            color: '#1ed35e'
-                                        }}
-                                    />
-                                </Tooltip>
-                            )
-                        }
+                        <Tooltip className="add-into-playlist" placement="top" title={"Lưu vào thư viện"}>
+                            <PlusCircleOutlined 
+                                onClick={() => addIntoFavorite(currentTrack.id)}
+                                style={{
+                                    color: isInFavorite ? '#1ed35e' : 'white'
+                                }}
+                            />
+                        </Tooltip>
+                        {currentTrack.video_file_path && (
+                            <Tooltip className="show-video" placement="top" title={"Xem video"}>
+                                <VideoCameraOutlined 
+                                    onClick={() => setShowVideo(!showVideo)}
+                                    style={{
+                                        color: showVideo ? '#1ed35e' : 'white',
+                                        marginLeft: '10px'
+                                    }}
+                                />
+                            </Tooltip>
+                        )}
                     </div>
                 </>
             ) : (
@@ -438,6 +483,29 @@ function MediaControls() {
                     onTimeUpdate={handleTimeUpdate}
                     onCanPlay={handleCanPlay}
                 />
+            )}
+
+            {/** Video player */}
+            {currentTrack && currentTrack.video_file_path && showVideo && (
+                <div className="video-player-container">
+                    <ReactPlayer
+                        ref={videoRef}
+                        url={currentTrack.video_file_path}
+                        width="100%"
+                        height="100%"
+                        playing={isPlaying}
+                        volume={currentVolume / 100}
+                        onTimeUpdate={handleVideoTimeUpdate}
+                        onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}
+                        onEnded={handleEnded}
+                        controls={false}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0
+                        }}
+                    />
+                </div>
             )}
         </div>
     )
