@@ -61,7 +61,14 @@ export function TrackProvider({ children }) {
             >
                 <h2>Nâng cấp lên Premium ?</h2>
                 <br/>
-                <p>Nâng cấp lên Premium để nghe chọn bài hát</p>
+                <p>Nâng cấp lên Premium để:</p>
+                <ul style={{ listStyle: 'none', padding: '10px 0' }}>
+                    <li>✓ Xem video không giới hạn</li>
+                    <li>✓ Nghe nhạc không quảng cáo</li>
+                    <li>✓ Truy cập kho nhạc Premium</li>
+                    <li>✓ Chọn bài hát cụ thể để nghe</li>
+                </ul>
+                <p style={{ color: '#1ed35e', fontWeight: 'bold' }}>Chỉ từ 49.000đ/tháng</p>
             </Modal>
         </TrackContext.Provider>
     );

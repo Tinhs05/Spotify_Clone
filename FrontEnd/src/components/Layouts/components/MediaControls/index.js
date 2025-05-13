@@ -377,7 +377,14 @@ function MediaControls() {
                         {currentTrack.video_file_path && (
                             <Tooltip className="show-video" placement="top" title={"Xem video"}>
                                 <VideoCameraOutlined 
-                                    onClick={() => setShowVideo(!showVideo)}
+                                    onClick={() => {
+                                        if (currentTrack.is_premium === 1 && user.is_premium === 0) {
+                                            setIsModalOpen(true);
+                                            setShowVideo(false);
+                                        } else {
+                                            setShowVideo(!showVideo);
+                                        }
+                                    }}
                                     style={{
                                         color: showVideo ? '#1ed35e' : 'white',
                                         marginLeft: '10px'
@@ -486,14 +493,14 @@ function MediaControls() {
             )}
 
             {/** Video player */}
-            {currentTrack && currentTrack.video_file_path && showVideo && (
+            {currentTrack && currentTrack.video_file_path && showVideo && (user.is_premium === 1 || currentTrack.is_premium === 0) && (
                 <div className="video-player-container">
                     <ReactPlayer
                         ref={videoRef}
                         url={currentTrack.video_file_path}
                         width="100%"
                         height="100%"
-                        playing={isPlaying}
+                        playing={isPlaying && (user.is_premium === 1 || currentTrack.is_premium === 0)}
                         volume={currentVolume / 100}
                         onTimeUpdate={handleVideoTimeUpdate}
                         onProgress={({ playedSeconds }) => setCurrentTime(playedSeconds)}

@@ -16,8 +16,6 @@ Hồ Sĩ Tịnh - 3121410512
 
 Trần Tuấn Khuông - 3122560036
 
-Thành Danh -
-
 Vũ Lê Đức Anh - 3122560002
 
 **Giảng viên hướng dẫn: Từ Lãng Phiêu**
